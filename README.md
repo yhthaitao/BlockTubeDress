@@ -6,6 +6,7 @@
     MaxRewardedAd	17324133c1fc4de0	
     MaxAdView	4cda5456b5439d37
     google_app_id   570781201899
+    url: https://adjust.clicksplay.com/sortdress/install?os=android&gps_adid=
     app_name:
         My Closet-Clothes Sort Puzzle
         私のクローゼット-服の並べ替えパズル

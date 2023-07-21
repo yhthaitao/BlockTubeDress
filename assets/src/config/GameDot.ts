@@ -54,6 +54,10 @@ const GameDot = {
     /** 加载成功 总点 */
     dot_loadok_to_all: 'loadok_to_all',
 
+    // 添加 返回道具成功（视频完成后）
+    dot_addSortReturn_succe: 'Ads_addSortReturn_succ',
+    // 添加 瓶子道具成功（视频完成后）
+    dot_addTube_succ: 'Ads_addTube_succ',
 
     /** 购买返回道具 */
     dot_buy_back_click: 'buy_back_click',
@@ -72,6 +76,10 @@ const GameDot = {
 
     dot_noads_buySucc: 'noads_buySucc',
     dot_share_level_click: 'share_level_click',
+
+    dot_sortPass: 'sortPass',
+    dot_sortReStart: 'sortReStart',
+    dot_sortStart: 'sortStart',
     /*************************************** end **************************************************/
 };
 export default GameDot;

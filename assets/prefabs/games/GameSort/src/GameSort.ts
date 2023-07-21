@@ -128,6 +128,7 @@ export default class GameSort extends cc.Component {
      */
     async enterLevel(isSpecial, isCheck) {
         NativeCall.logEventOne(GameDot.dot_levelStart);
+        NativeCall.logEventOne(GameDot.dot_sortStart);
         //游戏初始化
         this.cleanTube();
         this.initData();
@@ -694,6 +695,7 @@ export default class GameSort extends cc.Component {
     eventBtnReplay() {
         kit.Audio.playEffect(CConst.sound_path_click);
         let funcReplay = () => {
+            NativeCall.logEventOne(GameDot.dot_sortReStart);
             this.playAniShow(false, () => {
                 this.enterLevel(this.isLevelSpecial, false);
             });
@@ -725,50 +727,52 @@ export default class GameSort extends cc.Component {
     /** 按钮事件 上一步 */
     eventBtnReturn() {
         kit.Audio.playEffect(CConst.sound_path_click);
-        if (this.fanhuidata.length > 1) {
-            if (this.dataObj.returnCount > 0) {
-                // 刷新按钮ui
-                this.dataObj.returnCount -= 1;
+        if (this.fanhuidata.length <= 1) {
+            return;
+        }
+        if (this.dataObj.returnCount > 0) {
+            // 刷新按钮ui
+            this.dataObj.returnCount--;
+            this.updateBtnReturn();
+
+            // 重新布局游戏内容
+            this.cleanTube();// 清除瓶子
+
+            // 重置存储的数据 已经去掉遮罩的小动物，保持去掉的状态；
+            let dataLast = this.fanhuidata[this.fanhuidata.length - 1];
+            let dataCur = this.fanhuidata[this.fanhuidata.length - 2];
+            dataCur.blocksObj.forEach((blockObj: BlockObj, index: number) => {
+                let lastBlockObj = dataLast.blocksObj[index];
+                if (blockObj.number == lastBlockObj.number && blockObj.isCover != lastBlockObj.isCover) {
+                    blockObj.isCover = lastBlockObj.isCover;
+                }
+            });
+            this.fanhuidata.pop();// 记录的数据变更
+
+            let tubeNum = dataCur.tubeNum;
+            let blocksObj = dataCur.blocksObj;
+            this.refreshGame(true, tubeNum, blocksObj);
+            this.playAniNotMove();
+        } else {
+            let funcA = () => {
+                NativeCall.logEventOne(GameDot.dot_addSortReturn_succe);
+                kit.Audio.playEffect(CConst.sound_path_reward);
+                this.dataObj.returnCount = 5;
                 this.updateBtnReturn();
-
-                // 重新布局游戏内容
-                this.cleanTube();// 清除瓶子
-
-                // 重置存储的数据 已经去掉遮罩的小动物，保持去掉的状态；
-                let dataLast = this.fanhuidata[this.fanhuidata.length - 1];
-                let dataCur = this.fanhuidata[this.fanhuidata.length - 2];
-                dataCur.blocksObj.forEach((blockObj: BlockObj, index: number) => {
-                    let lastBlockObj = dataLast.blocksObj[index];
-                    if (blockObj.number == lastBlockObj.number && blockObj.isCover != lastBlockObj.isCover) {
-                        blockObj.isCover = lastBlockObj.isCover;
-                    }
-                });
-                this.fanhuidata.pop();// 记录的数据变更
-
-                let tubeNum = dataCur.tubeNum;
-                let blocksObj = dataCur.blocksObj;
-                this.refreshGame(true, tubeNum, blocksObj);
-                this.playAniNotMove();
-            } else {
-                let funcA = () => {
-                    kit.Audio.playEffect(CConst.sound_path_reward);
-                    this.dataObj.returnCount = 5;
-                    this.updateBtnReturn();
-                };
-                let funcB = (err: any) => {
-                    kit.Event.emit(CConst.event_tip_noVideo);
-                };
-                // 打点 视频广告请求（加返回道具）
-                NativeCall.logEventThree(GameDot.dot_adReq, "addPropReturn", "rewardVideo");
-                let isReady = DataManager.playVideo(funcA, funcB);
-                if (!isReady) {
-                    // 打点 插屏广告请求（加返回道具）
-                    NativeCall.logEventThree(GameDot.dot_adReq, "addPropReturn", "Interstital");
-                    isReady = DataManager.playAdvert(funcA, funcB);
-                }
-                if (!isReady) {
-                    funcB('err');
-                }
+            };
+            let funcB = (err: any) => {
+                kit.Event.emit(CConst.event_tip_noVideo);
+            };
+            // 打点 视频广告请求（加返回道具）
+            NativeCall.logEventThree(GameDot.dot_adReq, "addPropReturn", "rewardVideo");
+            let isReady = DataManager.playVideo(funcA, funcB);
+            if (!isReady) {
+                // 打点 插屏广告请求（加返回道具）
+                NativeCall.logEventThree(GameDot.dot_adReq, "addPropReturn", "Interstital");
+                isReady = DataManager.playAdvert(funcA, funcB);
+            }
+            if (!isReady) {
+                funcB('err');
             }
         }
     }
@@ -778,8 +782,27 @@ export default class GameSort extends cc.Component {
         kit.Audio.playEffect(CConst.sound_path_click);
         let tubeNum = this.nodeMain.childrenCount;
         let tubeMax = this.isLevelSpecial ? tubeNum + 1 : 18;
-        if (tubeNum < tubeMax) {
+        if (tubeNum >= tubeMax) {
+            Common.log('瓶子数量已达上限');
+            return;
+        }
+        // 添加瓶子（有道具）
+        if (DataManager.data.propAddTupe > 0) {
+            DataManager.data.propAddTupe--;
+            this.updateBtnAddTube();
+            this.addTube(tubeNum);
+            this.playAniNotMove();
+            this.saveData();
+
+            tubeNum = this.nodeMain.childrenCount;
+            this.refreshTubePos(tubeNum);
+            if (tubeNum >= tubeMax) {
+                this.btnAddTube.active = false;
+            }
+        }
+        else {
             let funcA = () => {
+                NativeCall.logEventOne(GameDot.dot_addTube_succ);
                 this.addTube(tubeNum);
                 this.playAniNotMove();
                 this.saveData();
@@ -790,21 +813,6 @@ export default class GameSort extends cc.Component {
                     this.btnAddTube.active = false;
                 }
             };
-
-            // 测试用代码段
-            if (DataManager.isDebug) {
-                funcA();
-                return;
-            }
-
-            let count = DataManager.data.propAddTupe;
-            // 添加瓶子
-            if (count > 0) {
-                DataManager.data.propAddTupe--;
-                this.updateBtnAddTube();
-                funcA();
-                return;
-            }
 
             let funcB = () => {
                 kit.Event.emit(CConst.event_tip_noVideo);
@@ -820,9 +828,6 @@ export default class GameSort extends cc.Component {
             if (!isReady) {
                 funcB();
             }
-        }
-        else {
-            Common.log('瓶子数量已达上限');
         }
     }
 
@@ -993,6 +998,7 @@ export default class GameSort extends cc.Component {
 
         this.dataObj.isFinish = true;
         // 打点 过关
+        NativeCall.logEventTwo(GameDot.dot_sortPass, String(levelSort));
         NativeCall.logEventOne(GameDot.dot_levelPass);
         let dot = GameDot['dot_pass_level_' + levelSort];
         if (dot) {
