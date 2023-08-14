@@ -15,7 +15,7 @@ export default class MainMenu extends cc.Component {
     @property(cc.Node) btnSet: cc.Node = null;
     @property(cc.Node) labelLevel: cc.Node = null;
 
-    async init(callback: Function = null){
+    init(callback: Function = null){
         Common.log('MainMenu init()');
 
         this.mask.setContentSize(cc.winSize);
@@ -28,8 +28,9 @@ export default class MainMenu extends cc.Component {
             callback && callback();
         }).start();
 
-        let chars = await DataManager.getString(LangChars.LEVEL); 
-        this.labelLevel.getComponent(cc.Label).string = chars + ':' + DataManager.data.sortData.level;
+        DataManager.setString(LangChars.LEVEL, (chars: string)=>{
+            this.labelLevel.getComponent(cc.Label).string = chars + ':' + DataManager.data.sortData.level;
+        });
     }
 
     /** 按钮事件 设置 */

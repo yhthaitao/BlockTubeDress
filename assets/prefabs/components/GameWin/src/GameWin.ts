@@ -17,8 +17,10 @@ export default class GameWin extends cc.Component {
     @property(cc.Node) labelNext: cc.Node = null;
 
     isLock: boolean = false;
-
+    initMask: number = 0;
     protected onLoad(): void {
+        this.initMask = this.mask.opacity;
+        this.mask.opacity = 0;
         Common.log('GameWin onLoad()');
     }
 
@@ -27,7 +29,7 @@ export default class GameWin extends cc.Component {
         this.playAniEnter();
     }
 
-    async initData() {
+    initData() {
         this.mask.width = cc.winSize.width;
         this.mask.height = cc.winSize.height;
 
@@ -44,8 +46,9 @@ export default class GameWin extends cc.Component {
         this.nodeParticle.children.forEach((item) => { item.opacity = 0 });
 
         this.nodeNext.opacity = 0;
-        let chars = await DataManager.getString(LangChars.Next);
-        this.labelNext.getComponent(cc.Label).string = chars;
+        DataManager.setString(LangChars.Next, (chars: string)=>{
+            this.labelNext.getComponent(cc.Label).string = chars;
+        });
     };
 
     /** 播放动画 进入结算界面 */
@@ -62,9 +65,8 @@ export default class GameWin extends cc.Component {
         // 按时播放动画
         cc.tween(this.node).call(() => {
             // node mask
-            let opaMask = this.mask.opacity;
             this.mask.opacity = 0;
-            cc.tween(this.mask).to(time_mask_opa, { opacity: opaMask }).start();
+            cc.tween(this.mask).to(time_mask_opa, { opacity: this.initMask }).start();
         }).delay(0.5).call(() => {
             // node title
             let titleBack = this.nodeTitle.getChildByName('back');

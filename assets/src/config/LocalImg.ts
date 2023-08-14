@@ -17,18 +17,20 @@ export default class LocalImg extends cc.Component {
         this.setRes();
     }
 
-    async setRes() {
-        let res = await DataManager.getResources(this.path + this.resName);
-        switch (this.resType) {
-            case ResType.PNG:
-                this.setTexture(res);
-                break;
-            case ResType.DRAGON:
-                this.setDragon(res);
-                break;
-            default:
-                break;
-        }
+    setRes() {
+        let funcSet = (asset)=>{
+            switch (this.resType) {
+                case ResType.PNG:
+                    this.setTexture(asset);
+                    break;
+                case ResType.DRAGON:
+                    this.setDragon(asset);
+                    break;
+                default:
+                    break;
+            }
+        };
+        DataManager.loadRes(this.path + this.resName, funcSet);
     }
 
     /** 设置素材 sprite */

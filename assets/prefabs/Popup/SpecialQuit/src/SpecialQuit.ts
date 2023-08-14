@@ -14,12 +14,14 @@ export default class SpecialQuit extends PopupBase {
         this.initLabel();
     }
 
-    async initLabel() {
-        let charsTitle = await DataManager.getString(LangChars.QUIT);
-        this.labelTitle.getComponent(cc.Label).string = charsTitle + '?';
+    initLabel() {
+        DataManager.setString(LangChars.QUIT, (chars: string)=>{
+            this.labelTitle.getComponent(cc.Label).string = chars + '?';
+        });
 
-        let charsSure = await DataManager.getString(LangChars.OK);
-        this.labelSure.getComponent(cc.Label).string = charsSure;
+        DataManager.setString(LangChars.OK, (chars: string)=>{
+            this.labelSure.getComponent(cc.Label).string = chars;
+        });
     }
 
     isSure: boolean = false;

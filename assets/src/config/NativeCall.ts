@@ -19,9 +19,11 @@ class NativeCall {
     public cloudLoadStart(): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         Common.log(' cocosToJava cocos method: cloudLoadStart() 云加载 开始 ');
-        let methodName = "loadGame";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "loadGame";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
     }
 
     /** 云加载 成功 */
@@ -44,9 +46,11 @@ class NativeCall {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         Common.log(' cocosToJava cocos method: share() 分享 ');
         this.logEventOne(CConst.event_log_share_click);
-        let methodName = "share";
-        let methodSignature = "(Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, level);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "share";
+            let methodSignature = "(Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, level);
+        }
     }
 
     /** 显示banner */
@@ -56,9 +60,11 @@ class NativeCall {
             return;
         }
         Common.log(' cocosToJava cocos method: showBanner() 显示banner ');
-        let methodName = "showBanner";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "showBanner";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
     };
 
     /** 隐藏banner */
@@ -68,19 +74,24 @@ class NativeCall {
             return;
         }
         Common.log(' cocosToJava cocos method: closeBanner() 隐藏banner ');
-        let methodName = "closeBanner";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "closeBanner";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
     };
 
     /** 视频 检测 */
     public videoCheck(): boolean {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return false;
-        let methodName = "checkMopubRewardVideo";
-        let methodSignature = "()Z";
-        let isReady = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
-        Common.log(' cocosToJava cocos method: videoCheck() 视频 检测 ready：', isReady);
-        return isReady;
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "checkMopubRewardVideo";
+            let methodSignature = "()Z";
+            let isReady = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+            Common.log(' cocosToJava cocos method: videoCheck() 视频 检测 ready：', isReady);
+            return isReady;
+        }
+        return false;
     }
 
     funcVideoSuccess: Function = null;
@@ -92,9 +103,11 @@ class NativeCall {
         this.funcVideoSuccess = funcA;
         this.funcVideoFail = funcB;
         Common.log(' cocosToJava cocos method: videoShow() 视频 播放 ');
-        let methodName = "showMopubRewardVideo";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "showMopubRewardVideo";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
         this.logEventOne(GameDot.dot_ads_request_video);
         this.logEventOne(GameDot.dot_ads_request_all);
     }
@@ -135,9 +148,12 @@ class NativeCall {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return false;
         let methodName = "interAdReady";
         let methodSignature = "()Z";
-        let isReady = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
-        Common.log(' cocosToJava cocos method: advertCheck() ready：', isReady);
-        return isReady;
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let isReady = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+            Common.log(' cocosToJava cocos method: advertCheck() ready：', isReady);
+            return isReady;
+        }
+        return false;
     }
 
     funcAdvertSuccess: Function = null;
@@ -149,9 +165,11 @@ class NativeCall {
         this.funcAdvertSuccess = funcA;
         this.funcAdvertFail = funcB;
         Common.log(' cocosToJava cocos method: advertShow() 广告 播放 ');
-        let methodName = "showInterstitial";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "showInterstitial";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
         this.logEventOne(GameDot.dot_ads_request_advert);
         this.logEventOne(GameDot.dot_ads_request_all);
     }
@@ -201,70 +219,88 @@ class NativeCall {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         let count = DataManager.updateS2SCount();
         Common.log(' cocosToJava cocos method: sTsEvent() count: ', count);
-        let methodName = "reportInstall2";
-        let methodSignature = "(Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, String(count));
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "reportInstall2";
+            let methodSignature = "(Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, String(count));
+        }
     }
 
     /** 打点 带一个 字符串类型参数 */
     public logEventOne(param1: string): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
-        Common.log(' cocosToJava cocos method: logEventOne() 打点（1个参数） ');
-        let methodName = "facebookLogEvent";
-        let methodSignature = "(Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1);
+        Common.log(' cocosToJava cocos method: logEventOne() name: ', param1);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "facebookLogEvent";
+            let methodSignature = "(Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1);
+        }
     }
 
     /** 打点 带两个 字符串类型参数 */
     public logEventTwo(param1: string, param2: string): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
-        Common.log(' cocosToJava cocos method: logEventTwo() 打点（2个参数） ');
-        let methodName = "valueLogEvent";
-        let methodSignature = "(Ljava/lang/String;Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2);
+        Common.log(' cocosToJava cocos method: logEventTwo() name: ', param1, '; param1: ', param2);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "valueLogEvent";
+            let methodSignature = "(Ljava/lang/String;Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2);
+        }
     }
 
     /** 打点 带三个 字符串类型参数 */
     public logEventThree(param1: string, param2: string, param3: string): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
-        Common.log(' cocosToJava cocos method: logEventThree() 打点（3个参数） ');
-        let methodName = "reqLogEvent";
-        let methodSignature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2, param3);
+        Common.log(' cocosToJava cocos method: logEventThree() name: ', param1, '; param1: ', param2, '; param2: ', param3);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "reqLogEvent";
+            let methodSignature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2, param3);
+        }
     }
 
     /** 打点 带四个 字符串类型参数 */
     public logEventFore(param1: string, param2: string, param3: string, param4: string): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
-        Common.log(' cocosToJava cocos method: logEventFore() 打点（4个参数） ');
-        let methodName = "passLevelLogEvent";
-        let methodSignature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2, param3, param4);
+        Common.log(' cocosToJava cocos method: logEventFore() name: ', param1, '; param1: ', param2, '; param2: ', param3, '; param3: ', param4);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "passLevelLogEvent";
+            let methodSignature = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, param1, param2, param3, param4);
+        }
     }
 
     /** 应用内评价 */
     public evaluateFirst() {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         Common.log(' cocosToJava cocos method: evaluateFirst() 进入游戏时调用 ');
-        jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "onCreateReview", "()V");
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "onCreateReview";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
     }
 
     /** 评价 */
     public evaluateShow() {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         Common.log(' cocosToJava cocos method: evaluateShow() 用户评价');
-        let methodName = "showComment";
-        let methodSignature = "()V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "showComment";
+            let methodSignature = "()V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+        }
     }
 
     /** 收入设置 */
     public setRevenue(revenue: string) {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
         Common.log(' cocosToJava cocos method: setRevenue() ');
-        let methodName = "setAdRevenue";
-        let methodSignature = "(F)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, parseFloat(revenue));
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "setAdRevenue";
+            let methodSignature = "(F)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, parseFloat(revenue));
+        }
     }
 
     /** 收入增加 */
@@ -282,8 +318,13 @@ class NativeCall {
     public checkLang(langDefault: string) {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return langDefault;
         Common.log(' cocosToJava cocos method: checkLang() ');
-        let language = jsb.reflection.callStaticMethod("org/cocos2dx/javascript/AppActivity", "getLanguage", "()Ljava/lang/String;");
-        return language;
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "getLanguage";
+            let methodSignature = "()Ljava/lang/String;";
+            let language = jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature);
+            return language;
+        }
+        return langDefault;
     }
 
     /*************************************************  暂无  *************************************************/
@@ -301,9 +342,11 @@ class NativeCall {
             default:
                 break;
         }
-        let methodName = "buyItem";
-        let methodSignature = "(Ljava/lang/String;)V";
-        jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, prop);
+        if (jsb && jsb.reflection && jsb.reflection.callStaticMethod) {
+            let methodName = "buyItem";
+            let methodSignature = "(Ljava/lang/String;)V";
+            jsb.reflection.callStaticMethod(CConst.javaClassName, methodName, methodSignature, prop);
+        }
     }
 
     /** 购买成功 */

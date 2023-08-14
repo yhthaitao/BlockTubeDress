@@ -19,15 +19,18 @@ export default class SpecialTip extends PopupBase {
         this.initLabel();
     }
 
-    async initLabel() {
-        let charsTitle = await DataManager.getString(LangChars.SPECIALLEVEL);
-        this.labelTitle.getComponent(cc.Label).string = charsTitle;
+    initLabel() {
+        DataManager.setString(LangChars.SPECIALLEVEL, (chars: string)=>{
+            this.labelTitle.getComponent(cc.Label).string = chars;
+        });
 
-        let charsPlay = await DataManager.getString(LangChars.PLAY);
-        this.labelPlay.getComponent(cc.Label).string = charsPlay;
+        DataManager.setString(LangChars.PLAY, (chars: string)=>{
+            this.labelPlay.getComponent(cc.Label).string = chars;
+        });
 
-        let charsSkip = await DataManager.getString(LangChars.SKIP);
-        this.labelSkip.getComponent(cc.Label).string = charsSkip;
+        DataManager.setString(LangChars.SKIP, (chars: string)=>{
+            this.labelSkip.getComponent(cc.Label).string = chars;
+        });
     }
 
     protected init(options: any): void {

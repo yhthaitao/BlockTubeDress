@@ -65,6 +65,7 @@ export default class GameSort extends cc.Component {
 
     resPath = {
         levelPath: { bundle: 'prefabs', path: './games/GameSort/res/level/SortLevel' },
+        levelColor: { bundle: 'prefabs', path: './games/GameSort/res/level/GetColorLevel' },
     }
     /** 是否为特殊关卡 */
     isLevelSpecial: boolean = false;
@@ -126,17 +127,14 @@ export default class GameSort extends cc.Component {
      * @param isSpecial 当前是否是特殊关卡
      * @param isCheck 是否需要检测特殊关卡
      */
-    async enterLevel(isSpecial, isCheck) {
+    enterLevel(isSpecial, isCheck) {
         NativeCall.logEventOne(GameDot.dot_levelStart);
         NativeCall.logEventOne(GameDot.dot_sortStart);
         //游戏初始化
         this.cleanTube();
         this.initData();
-        await this.initUI(isSpecial);
-        let asset: cc.JsonAsset = await this.loadLevel(isSpecial);
-        this.initLevel(asset.json, isSpecial, isCheck);
-        this.playAniNotMove();// 游戏重新开始之后，ui不再跳
-        NativeCall.showBanner();
+        this.initUI(isSpecial);
+        this.loadLevel(isSpecial, isCheck);
     }
 
     initData() {
@@ -153,7 +151,7 @@ export default class GameSort extends cc.Component {
         this.fanhuidata = [];
     }
 
-    async initUI(isSpecial) {
+    initUI(isSpecial) {
         this.uiTop.y = cc.winSize.height * 0.5 - 100;
         // 更新按钮状态ui
         this.btnSet.active = false;
@@ -170,9 +168,13 @@ export default class GameSort extends cc.Component {
         // 更新关卡等级ui
         let level = 'Lv.' + String(DataManager.data.sortData.level);
         if (isSpecial) {
-            level = await DataManager.getString(LangChars.SPECIAL);
+            DataManager.setString(LangChars.SPECIAL, (chars: string)=>{
+                this.labelLevel.getComponent(cc.Label).string = chars;
+            });
         }
-        this.labelLevel.getComponent(cc.Label).string = level;
+        else{
+            this.labelLevel.getComponent(cc.Label).string = level;
+        }
     }
 
     /** 刷新按钮 回退 */
@@ -209,18 +211,19 @@ export default class GameSort extends cc.Component {
         }
     }
 
-    async loadLevel(isSpecial) {
+    loadLevel(isSpecial, isCheck) {
+        let cfg = this.resPath.levelPath;
+        let path = '';
         if (isSpecial) {
-            let cfg = this.resPath.levelPath;
-            let path = cfg.path + 'Else';
-            let asset: cc.JsonAsset = await kit.Resources.loadRes(cfg.bundle, path, cc.JsonAsset);
-            return asset;
+            path = cfg.path + 'Else';
         }
         else {
-            let cfg = this.resPath.levelPath;
-            let path = cfg.path;
+            path = cfg.path;
             let sortLevel = DataManager.data.sortData.level;
-            if (sortLevel > 2000) { path = path + '1'; }
+            if (sortLevel <= 100) {
+                path = this.resPath.levelColor.path;
+            }
+            else if (sortLevel > 2000) { path = path + '1'; }
             else if (sortLevel > 4000) { path = path + '2'; }
             else if (sortLevel > 6000) { path = path + '3'; }
             else if (sortLevel > 8000) { path = path + '4'; }
@@ -229,9 +232,13 @@ export default class GameSort extends cc.Component {
             else if (sortLevel > 14000) { path = path + '7'; }
             else if (sortLevel > 16000) { path = path + '8'; }
             else if (sortLevel > 18000) { path = path + '9'; }
-            let asset: cc.JsonAsset = await kit.Resources.loadRes(cfg.bundle, path, cc.JsonAsset);
-            return asset;
         }
+        console.log('bundle: ', cfg.bundle, '; path: ', path);
+        DataManager.loadBundleRes(cfg.bundle, path, (asset: cc.JsonAsset)=>{
+            this.initLevel(asset.json, isSpecial, isCheck);
+            this.playAniNotMove();// 游戏重新开始之后，ui不再跳
+            NativeCall.showBanner();
+        })
     }
 
     /**
@@ -559,7 +566,8 @@ export default class GameSort extends cc.Component {
                 blocksNum: this.dataObj.blockTotal,
                 callback: index == length - 1 ? callback : null,
             };
-            await block.getComponent(SortBlock).fly(objMove, oldTube, newTube, this.baseTime, this.baseDis, this.node);
+            let scriptBlock = block.getComponent(SortBlock);
+            await scriptBlock.fly(objMove, oldTube, newTube, this.baseTime, this.baseDis, this.node);
             // 去掉遮罩
             oldTubeScript.hideBlockTopCover();
         }

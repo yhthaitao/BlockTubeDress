@@ -15,16 +15,16 @@ export default class NewPlayer extends cc.Component {
 
     guideType: string = '';
 
-    async show(type: string, isRight: boolean = false) {
+    show(type: string, isRight: boolean = false) {
         this.guideType = type;
-        let label = this.sign.getChildByName('label');
+        let itemLabel = this.sign.getChildByName('label');
         let icon = this.hand.getChildByName("icon");
-        let chars = '';
         switch (type) {
             case CConst.newPlayer_guide_sort_1:
                 NativeCall.logEventOne(GameDot.dot_guide_adventure_01);
-                chars = await DataManager.getString(LangChars.sort1);
-                label.getComponent(cc.Label).string = chars;
+                DataManager.setString(LangChars.sort1, (chars: string)=>{
+                    itemLabel.getComponent(cc.Label).string = chars;
+                });
 
                 this.hand.position = isRight ? cc.v3(0, 25) : cc.v3(-220, 100);
                 cc.tween(icon).to(0.383, { opacity: 255 }).call(() => {
@@ -34,8 +34,9 @@ export default class NewPlayer extends cc.Component {
             case CConst.newPlayer_guide_sort_2:
                 NativeCall.logEventOne(GameDot.dot_guide_adventure_02);
                 NativeCall.logEventTwo('sortFirstPlay', String(2));
-                chars = await DataManager.getString(LangChars.sort2);
-                label.getComponent(cc.Label).string = chars;
+                DataManager.setString(LangChars.sort2, (chars: string)=>{
+                    itemLabel.getComponent(cc.Label).string = chars;
+                });
 
                 this.hand.position = isRight ? cc.v3(0, 25) : cc.v3(-220, 100);
                 cc.tween(icon).to(0.383, { opacity: 255 }).call(() => {
@@ -45,8 +46,9 @@ export default class NewPlayer extends cc.Component {
             case CConst.newPlayer_guide_sort_3:
                 NativeCall.logEventOne(GameDot.dot_guide_adventure_03);
                 NativeCall.logEventTwo('sortFirstPlay', String(3));
-                chars = await DataManager.getString(LangChars.sort3);
-                label.getComponent(cc.Label).string = chars;
+                DataManager.setString(LangChars.sort3, (chars: string)=>{
+                    itemLabel.getComponent(cc.Label).string = chars;
+                });
                 this.sign.y = -400
                 break;
             default:

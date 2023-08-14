@@ -21,10 +21,11 @@ export default class Loading extends cc.Component {
         this.nodeProcess.getChildByName('bar').width = 0;
     }
 
-    async initLabel() {
-        let chars = await DataManager.getString(LangChars.Loading);
+    initLabel() {
         let itemLabel = this.nodeProcess.getChildByName('label');
-        itemLabel.getComponent(cc.Label).string = chars;
+        DataManager.setString(LangChars.Loading, (chars: string)=>{
+            itemLabel.getComponent(cc.Label).string = chars;
+        });
     }
 
     protected start(): void {
@@ -58,7 +59,7 @@ export default class Loading extends cc.Component {
     }
 
     /** 动画 loading 进度 */
-    async playAniProcess() {
+    playAniProcess() {
         let tShow = .383;
         let processBar = this.nodeProcess.getChildByName('bar');
         cc.tween(processBar).to(tShow * 4, { width: this.width * 0.8 }, cc.easeSineInOut()).call(() => {
@@ -66,13 +67,15 @@ export default class Loading extends cc.Component {
         }).start();
 
         // loading字符显示
-        let chars = await DataManager.getString(LangChars.Loading);
-        let label = this.nodeProcess.getChildByName('label').getComponent(cc.Label);
+        let itemLabel = this.nodeProcess.getChildByName('label');
+        let label = itemLabel.getComponent(cc.Label);
         let funcLabel = () => {
-            if (label.string == chars) label.string = chars + '.';
-            else if (label.string == chars + ".") label.string = chars + '..';
-            else if (label.string == chars + "..") label.string = chars + '...';
-            else label.string = chars;
+            DataManager.setString(LangChars.Loading, (chars: string)=>{
+                if (label.string == chars) label.string = chars + '.';
+                else if (label.string == chars + '.') label.string = chars + '..';
+                else if (label.string == chars + '..') label.string = chars + '...';
+                else label.string = chars;
+            });
         };
         this.schedule(funcLabel, tShow);
     }

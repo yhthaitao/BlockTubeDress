@@ -79,6 +79,8 @@ class DataManager {
     nodeVideo: cc.Node = null;
     /** 资源 */
     objResources: any = {};
+    /** objBundle */
+    objBundle: any = {};
     /** 本地语言 */
     langCur: string = LangFile.en;
     /** 云加载 */
@@ -119,7 +121,7 @@ class DataManager {
     };
 
     /** 初始化数据 */
-    public async initData(nodeAni: cc.Node) {
+    public initData(nodeAni: cc.Node, callback) {
         let _data = JSON.parse(cc.sys.localStorage.getItem('gameData'));
         if (_data) {
             this.data = Common.clone(_data);
@@ -127,22 +129,37 @@ class DataManager {
         else {
             cc.sys.localStorage.setItem('gameData', JSON.stringify(_data));
         }
+        // 初始化视频动画
+        this.nodeVideo = nodeAni;
+        this.nodeVideo.zIndex = CConst.zIndex_video;
+        this.nodeVideo.active = false;
         // 初始化收入
         NativeCall.setRevenue(this.data.revenue);
         // 初始化语言
         this.initLanguage();
         // 提前加载 本地化 文本
-        await this.getResources('./language/text/' + this.langCur);
+        let pathText = './language/text/' + this.langCur;
         // 提前加载 本地化 图片
         let arrName = Object.keys(LangImg);
-        for (let index = 0, length = arrName.length; index < length; index++) {
-            const element = arrName[index];
-            await this.getResources('./language/img/' + this.langCur + '/' + element);
-        }
-        // 初始化视频动画
-        this.nodeVideo = nodeAni;
-        this.nodeVideo.zIndex = CConst.zIndex_video;
-        this.nodeVideo.active = false;
+        let lenPng = arrName.length;
+        let loadLocalPng = (index) => {
+            if (index < lenPng) {
+                let pathPng = './language/img/' + this.langCur + '/' + arrName[index];
+                NativeCall.logEventTwo('onCreat_002', pathPng);
+                this.loadRes(pathPng, (asset: any) => {
+                    index++;
+                    loadLocalPng(index);
+                });
+            }
+            else {
+                callback && callback();
+            }
+        };
+        NativeCall.logEventTwo('onCreat_002', pathText);
+        // 资源下载 先下载text 再下载png
+        this.loadRes(pathText, (asset: any)=>{
+            loadLocalPng(0);
+        });
     }
 
     /** 多语言设置 */
@@ -170,7 +187,7 @@ class DataManager {
                 this.langCur = LangFile.zh;
                 break;
             default:
-                this.langCur = language;
+                this.langCur = LangFile.en;
                 break;
         }
         Common.log(' 初始化语言：', this.langCur);
@@ -310,19 +327,13 @@ class DataManager {
         return heightMax * 0.3 + 50;
     };
 
-    /** 获取字符串 */
-    public async getString(key: string): Promise<string> {
-        let assetJson: cc.JsonAsset = await this.getResources('./language/text/' + this.langCur);
-        return assetJson.json[key];
-    };
-
-    /** 获取资源 */
-    public async getResources(path: string): Promise<any> {
-        if (!this.objResources[path]) {
-            let asset = await this.loadResLoacl(path);
-            this.objResources[path] = asset;
-        }
-        return this.objResources[path];
+    public setString(key: string, callback) {
+        let path = './language/text/' + this.langCur;
+        this.loadRes(path, (jsonAsset: cc.JsonAsset) => {
+            if (jsonAsset) {
+                callback && callback(jsonAsset.json[key]);
+            }
+        });
     };
 
     /**
@@ -330,18 +341,54 @@ class DataManager {
      * @param path 
      * @returns 
      */
-    public loadResLoacl(path): Promise<any> {
-        return new Promise((resolve) => {
-            cc.resources.load(path, function (err, asset) {
+    public loadRes(path: string, callback: Function) {
+        let assetOld = this.objResources[path];
+        if (assetOld) {
+            callback && callback(assetOld);
+        }
+        else {
+            cc.resources.load(path, (err: Error, assetNew: any) => {
                 if (err) {
                     Common.log("加载失败：", path);
+                    NativeCall.logEventThree('onCreat_003', err.name, err.message);
                 }
                 else {
                     Common.log("加载资源：", path);
-                    resolve(asset);
+                    this.objResources[path] = assetNew;
+                    callback && callback(assetNew);
                 }
             });
-        });
+        }
+    }
+
+    /** 加载bundle资源 */
+    public loadBundleRes(bundleName: string, pathName: string, callback: Function) {
+        let funcAfter = (bundle: cc.AssetManager.Bundle)=>{
+            let asset = this.objResources[pathName];
+            if (asset) {
+                callback && callback(asset);
+            }
+            else{
+                bundle.load(pathName, (e, asset)=>{
+                    if (asset) {
+                        this.objResources[pathName] = asset;
+                        callback && callback(asset);
+                    }
+                });
+            }
+        };
+        let bundle: cc.AssetManager.Bundle = this.objBundle[bundleName];
+        if (bundle) {
+            funcAfter(bundle);
+        }
+        else{
+            cc.assetManager.loadBundle(bundleName, (e, bundle: cc.AssetManager.Bundle)=>{
+                if (bundle) {
+                    this.objBundle[bundleName] = bundle;
+                    funcAfter(this.objBundle[bundleName]);
+                }
+            });
+        }
     }
 };
 export default DataManager.instance;

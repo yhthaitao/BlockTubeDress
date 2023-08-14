@@ -53,9 +53,7 @@ export default class MainScene extends cc.Component {
         this.init();
     }
 
-    async init() {
-        await this.initData();
-        this.initUI();
+    init() {
         // 应用内评价（启动游戏时调用）
         let funcEvaluate = () => {
             let _data = DataManager.data;
@@ -64,23 +62,33 @@ export default class MainScene extends cc.Component {
             }
             NativeCall.evaluateFirst();
         };
-        funcEvaluate();
+        // 初始化音频
+        let funcMusic = () => {
+            kit.Audio.initAudio();
+            kit.Audio.playMusic(CConst.sound_path_music);
+        };
+        NativeCall.logEventOne('onCreat_001');
+        // 初始化游戏数据
+        DataManager.initData(this.nodeVideo, () => {
+            funcEvaluate();
+            funcMusic();
+            this.initUI();
+        });
     }
 
     /** 初始化 数据*/
-    async initData() {
+    initData(funcUI: Function) {
         // 初始化游戏数据
-        await DataManager.initData(this.nodeVideo);
-        // 初始化音频
-        kit.Audio.initAudio();
-        kit.Audio.playMusic(CConst.sound_path_music);
+        DataManager.initData(this.nodeVideo, funcUI);
     };
 
     /** 初始化 ui */
     initUI(): void {
+        NativeCall.logEventOne('onCreat_004');
         this.initLoading();
         this.initNoVideo();
         this.initPopup();
+        NativeCall.logEventOne('onCreat_005');
         this.loadComponents();
     };
 
@@ -93,9 +101,10 @@ export default class MainScene extends cc.Component {
     };
 
     /** 无视频提示 */
-    async initNoVideo() {
-        let tipVideo = await DataManager.getString(LangChars.CannotWatchAds);
-        this.noVideoTip.getComponent(cc.Label).string = tipVideo;
+    initNoVideo() {
+        DataManager.setString(LangChars.CannotWatchAds, (chars: string) => {
+            this.noVideoTip.getComponent(cc.Label).string = chars;
+        });
         this.noVideoTip.zIndex = CConst.zIndex_noVideo;
         this.noVideoTip.opacity = 0;
     }
@@ -109,15 +118,27 @@ export default class MainScene extends cc.Component {
     };
 
     /** 加载公用资源 */
-    async loadComponents() {
-        await kit.Resources.loadRes(ResPath.preGameWin.bundle, ResPath.preGameWin.path, cc.Prefab);
-        await kit.Resources.loadRes(ResPath.preNewPlayer.bundle, ResPath.preNewPlayer.path, cc.Prefab);
-        await kit.Resources.loadRes(ResPath.preGameSort.bundle, ResPath.preGameSort.path, cc.Prefab);
-
-        NativeCall.logEventOne(GameDot.dot_resource_load_success);
-        this.isCompleteLoadData = true;
-
-        this.enterMenuLayer();
+    loadComponents() {
+        let arrName = Object.keys(ResPath);
+        let lenPrefab = arrName.length;
+        let loadBundleRes = (index, callback) => {
+            if (index < lenPrefab) {
+                let cfg: { bundle: string, path: string } = ResPath[arrName[index]];
+                NativeCall.logEventThree('onCreat_006', cfg.bundle, cfg.path);
+                DataManager.loadBundleRes(cfg.bundle, cfg.path, (asset) => {
+                    index++;
+                    loadBundleRes(index, callback);
+                });
+            }
+            else {
+                callback && callback();
+            }
+        };
+        loadBundleRes(0, () => {
+            NativeCall.logEventOne(GameDot.dot_resource_load_success);
+            this.isCompleteLoadData = true;
+            this.enterMenuLayer();
+        });
     }
 
     /** 进入主菜单 */
@@ -127,7 +148,7 @@ export default class MainScene extends cc.Component {
         }
 
         // 进入 主菜单
-        let funcEnterMenu = async () => {
+        let funcEnterMenu = () => {
             this.NodeMainMenu = cc.instantiate(this.preMainMenu);
             this.NodeMainMenu.zIndex = CConst.zIndex_menu;
             this.NodeMainMenu.parent = this.node;
@@ -189,7 +210,7 @@ export default class MainScene extends cc.Component {
     };
 
     /** 事件回调：进入游戏sort */
-    async eventBack_enterGameSort() {
+    eventBack_enterGameSort() {
         DataManager.setGameState(GameState.stateGame);
         if (DataManager.stateLast == GameState.stateMainMenu) {
             this.NodeMainMenu.active = false;
@@ -205,42 +226,54 @@ export default class MainScene extends cc.Component {
         }
         else {
             let cfg = ResPath.preGameSort;
-            let pre: cc.Prefab = await kit.Resources.loadRes(cfg.bundle, cfg.path, cc.Prefab);
-            this.nodeGame = cc.instantiate(pre);
-            this.nodeGame.setContentSize(cc.winSize);
-            this.nodeGame.position = cc.v3();
-            this.nodeGame.zIndex = CConst.zIndex_game;
-            this.nodeGame.parent = this.node;
+            DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
+                if (!prefab) {
+                    return;
+                }
+                this.nodeGame = cc.instantiate(prefab);
+                this.nodeGame.setContentSize(cc.winSize);
+                this.nodeGame.position = cc.v3();
+                this.nodeGame.zIndex = CConst.zIndex_game;
+                this.nodeGame.parent = this.node;
+            });
         }
     }
 
     /** 事件回调：进入新手引导 */
-    async eventBack_enterNewPlayer(type: string, isRight: boolean = false) {
+    eventBack_enterNewPlayer(type: string, isRight: boolean = false) {
         let cfg = ResPath.preNewPlayer;
-        let pre: cc.Prefab = await kit.Resources.loadRes(cfg.bundle, cfg.path, cc.Prefab);
-        let nodeNewPLayer = cc.instantiate(pre);
-        nodeNewPLayer.zIndex = CConst.zIndex_newPlayer;
-        nodeNewPLayer.parent = this.node;
-        let script = nodeNewPLayer.getComponent('NewPlayer');
-        switch (type) {
-            case CConst.newPlayer_guide_sort_1:
-            case CConst.newPlayer_guide_sort_2:
-            case CConst.newPlayer_guide_sort_3:
-                script.show(type, isRight);
-                break;
-            default:
-                nodeNewPLayer.removeFromParent();
-                break;
-        }
+        DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
+            if (!prefab) {
+                return;
+            }
+            let nodeNewPLayer = cc.instantiate(prefab);
+            nodeNewPLayer.zIndex = CConst.zIndex_newPlayer;
+            nodeNewPLayer.parent = this.node;
+            let script = nodeNewPLayer.getComponent('NewPlayer');
+            switch (type) {
+                case CConst.newPlayer_guide_sort_1:
+                case CConst.newPlayer_guide_sort_2:
+                case CConst.newPlayer_guide_sort_3:
+                    script.show(type, isRight);
+                    break;
+                default:
+                    nodeNewPLayer.removeFromParent();
+                    break;
+            }
+        });
     };
 
     /** 事件回调：进入胜利界面 */
-    async eventBack_enterGameWin() {
+    eventBack_enterGameWin() {
         let cfg = ResPath.preGameWin;
-        let pre: cc.Prefab = await kit.Resources.loadRes(cfg.bundle, cfg.path, cc.Prefab);
-        let nodeGameWin = cc.instantiate(pre);
-        nodeGameWin.zIndex = CConst.zIndex_gameWin;
-        nodeGameWin.parent = this.node;
+        DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
+            if (!prefab) {
+                return;
+            }
+            let nodeGameWin = cc.instantiate(prefab);
+            nodeGameWin.zIndex = CConst.zIndex_gameWin;
+            nodeGameWin.parent = this.node;
+        });
     };
 
     /** 事件回调：无视频提示 */

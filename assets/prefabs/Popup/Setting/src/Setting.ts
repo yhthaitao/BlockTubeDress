@@ -15,7 +15,7 @@ export default class Setting extends PopupBase {
         this.initUI();
     }
 
-    async initUI() {
+    initUI() {
         this.uiSignOn.active = false;
         this.uiSignOff.active = false;
         let config = kit.Audio.config;

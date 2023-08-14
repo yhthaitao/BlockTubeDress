@@ -24,9 +24,10 @@ export default class SpecialQuit extends PopupBase {
         this.refreshXingxing();
     }
 
-    async initLabel() {
-        let charsTitle = await DataManager.getString(LangChars.REVIEW);
-        this.labelTitle.getComponent(cc.Label).string = charsTitle;
+    initLabel() {
+        DataManager.setString(LangChars.REVIEW, (chars: string)=>{
+            this.labelTitle.getComponent(cc.Label).string = chars;
+        });
     }
 
     /** 按钮事件 星星 */

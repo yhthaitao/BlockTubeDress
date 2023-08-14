@@ -1,4 +1,4 @@
-import { kit } from "../../kit";
+import DataManager from "../../../config/DataManager";
 import PopupBase from "./PopupBase";
 
 /** 弹窗缓存模式 */
@@ -329,14 +329,15 @@ export default class PopupManager {
                 }
             }
             // 动态加载
-            let prefab = await kit.Resources.loadRes('prefabs', path, cc.Prefab);
-            if (prefab) {
-                // 缓存预制体
-                prefabMap.set(path, prefab);
-                // 增加引用计数
-                prefab.addRef();
-                res(prefab);
-            }
+            DataManager.loadBundleRes('prefabs', path, (prefab: cc.Prefab)=>{
+                if (prefab) {
+                    // 缓存预制体
+                    prefabMap.set(path, prefab);
+                    // 增加引用计数
+                    prefab.addRef();
+                    res(prefab);
+                }
+            });
         });
     }
 

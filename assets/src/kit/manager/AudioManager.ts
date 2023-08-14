@@ -1,4 +1,4 @@
-import ResLoader from "../framework/load/ResLoader";
+import DataManager from "../../config/DataManager";
 
 /**
  * 音频播放类
@@ -29,7 +29,7 @@ export default class AudioManager {
      * 设置 音频
      * @param isSound 
      */
-    public static setIsSound(isSound: boolean){
+    public static setIsSound(isSound: boolean) {
         this._config.isPlayMusic = isSound;
         if (!this._config.isPlayMusic) {
             this.stopAllMusic();
@@ -114,12 +114,11 @@ export default class AudioManager {
         // 停止旧的
         if (this._music.has(path)) this.stopMusic(path);
         // 开始新的
-        ResLoader.loadRes(path, cc.AudioClip, (e, clip) => {
-            if (e) {
-                return;
+        DataManager.loadRes(path, (clip) => {
+            if (clip) {
+                let id = cc.audioEngine.play(clip, true, this._config.volumeMusic);
+                this._music.set(path, id);
             }
-            let id = cc.audioEngine.play(clip, true, this._config.volumeMusic);
-            this._music.set(path, id);
         });
     }
 
@@ -197,13 +196,13 @@ export default class AudioManager {
         if (!this._config.isPlayEffect) {
             return;
         }
-        ResLoader.loadRes(path, cc.AudioClip, (e, clip) => {
-            if (e) {
-                return;
+        // 开始新的
+        DataManager.loadRes(path, (clip) => {
+            if (clip) {
+                let id = cc.audioEngine.play(clip, loop, this._config.volumeEffect);
+                this._effect.set(path, id);
+                if (!loop) cc.audioEngine.setFinishCallback(id, () => this._effect.delete(path));
             }
-            let id = cc.audioEngine.play(clip, loop, this._config.volumeEffect);
-            this._effect.set(path, id);
-            if (!loop) cc.audioEngine.setFinishCallback(id, () => this._effect.delete(path));
         });
     }
 
