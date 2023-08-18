@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.5",
+  "uuid": "b562ced0-972b-4732-ad19-fab7a5325d56",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 178,
+  "height": 303,
+  "platformSettings": {},
+  "subMetas": {
+    "篮球2-5": {
+      "ver": "1.0.4",
+      "uuid": "30d35787-1f19-4417-a734-c575c2801eba",
+      "rawTextureUuid": "b562ced0-972b-4732-ad19-fab7a5325d56",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 178,
+      "height": 303,
+      "rawWidth": 178,
+      "rawHeight": 303,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

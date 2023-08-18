@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.5",
+  "uuid": "2bd1d541-45f5-45da-ac41-2a03760b91ab",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 240,
+  "height": 330,
+  "platformSettings": {},
+  "subMetas": {
+    "棒球-1": {
+      "ver": "1.0.4",
+      "uuid": "1dccb5b1-d2b9-4ace-bcb4-6ffa44d1dd6a",
+      "rawTextureUuid": "2bd1d541-45f5-45da-ac41-2a03760b91ab",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 240,
+      "height": 330,
+      "rawWidth": 240,
+      "rawHeight": 330,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

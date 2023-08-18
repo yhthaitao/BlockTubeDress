@@ -14,6 +14,7 @@ export default class SpecialTip extends PopupBase {
     @property(cc.Node) labelSkip: cc.Node = null;
 
     isSpecial: boolean = false;
+    isLock: boolean = false;
 
     protected onLoad(): void {
         this.initLabel();
@@ -58,12 +59,21 @@ export default class SpecialTip extends PopupBase {
 
     eventBtnPlay() {
         kit.Audio.playEffect(CConst.sound_path_click);
+        if (this.isLock) {
+            return;
+        }
+        this.isLock = true;
         this.isSpecial = true;
         kit.Popup.hide();
     }
 
     eventBtnSkip() {
+        if (this.btnSkip.opacity != 255) return;
         kit.Audio.playEffect(CConst.sound_path_click);
+        if (this.isLock) {
+            return;
+        }
+        this.isLock = true;
         this.isSpecial = false;
         kit.Popup.hide();
     }

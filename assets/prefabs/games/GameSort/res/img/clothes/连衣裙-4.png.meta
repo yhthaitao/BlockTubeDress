@@ -1,0 +1,36 @@
+{
+  "ver": "2.3.5",
+  "uuid": "36912854-aa4c-4f41-a7ee-17f4b4c88232",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 262,
+  "height": 453,
+  "platformSettings": {},
+  "subMetas": {
+    "连衣裙-4": {
+      "ver": "1.0.4",
+      "uuid": "d1c476e7-d0c9-4c92-88ab-a45f924715cb",
+      "rawTextureUuid": "36912854-aa4c-4f41-a7ee-17f4b4c88232",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 262,
+      "height": 453,
+      "rawWidth": 262,
+      "rawHeight": 453,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

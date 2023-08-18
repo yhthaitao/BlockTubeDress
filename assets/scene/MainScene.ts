@@ -163,14 +163,15 @@ export default class MainScene extends cc.Component {
         let script = this.nodeLoading.getComponent(Loading);
         let dataSort = DataManager.data.sortData;
         let isNewPlayer = dataSort.newTip.cur < dataSort.newTip.max;
-        if (isNewPlayer) {
-            Common.log('新手 进入游戏');
-            script.playAniLeave(this.eventBack_enterGameSort.bind(this));
-        }
-        else {
-            Common.log('非新手 进入主界面');
-            script.playAniLeave(funcEnterMenu);
-        }
+        script.playAniLeave(this.eventBack_enterGameSort.bind(this));
+        // if (isNewPlayer) {
+        //     Common.log('新手 进入游戏');
+        //     script.playAniLeave(this.eventBack_enterGameSort.bind(this));
+        // }
+        // else {
+        //     Common.log('非新手 进入主界面');
+        //     script.playAniLeave(funcEnterMenu);
+        // }
     }
 
     /** 监听-注册 */

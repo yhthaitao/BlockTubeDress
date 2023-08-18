@@ -1,13 +1,14 @@
-import { kit } from "../../../../src/kit/kit";
-import { PopupCacheMode } from "../../../../src/kit/manager/popupManager/PopupManager";
+import {kit} from "../../../../src/kit/kit";
+import {PopupCacheMode} from "../../../../src/kit/manager/popupManager/PopupManager";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
 import GameDot from "../../../../src/config/GameDot";
 import NativeCall from "../../../../src/config/NativeCall";
-import DataManager, { LangChars } from "../../../../src/config/DataManager";
+import DataManager, {LangChars} from "../../../../src/config/DataManager";
 import SortTube from "./SortTube";
 import SortBlock from "./SortBlock";
 import SortTubePos from "./SortTubePos";
+
 /** sort关卡数据 */
 interface SortLevelData {
     /** 关卡编号 */
@@ -47,7 +48,7 @@ export interface DataMove {
     callback?: Function,
 }
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class GameSort extends cc.Component {
 
@@ -64,8 +65,7 @@ export default class GameSort extends cc.Component {
     @property(cc.Prefab) preBlock: cc.Prefab = null;// 预制体：动物
 
     resPath = {
-        levelPath: { bundle: 'prefabs', path: './games/GameSort/res/level/SortLevel' },
-        levelColor: { bundle: 'prefabs', path: './games/GameSort/res/level/GetColorLevel' },
+        levelPath: {bundle: 'prefabs', path: './games/GameSort/res/level/SortLevel'},
     }
     /** 是否为特殊关卡 */
     isLevelSpecial: boolean = false;
@@ -82,7 +82,7 @@ export default class GameSort extends cc.Component {
      * @param isMoving 是否正在移动
      * @param isFinish 游戏是否结束
      * @param tubeOld 提起的瓶子
-     * @returns 
+     * @returns
      */
     dataObj = {
         blockTotal: 0,
@@ -158,8 +158,7 @@ export default class GameSort extends cc.Component {
         this.btnBack.active = false;
         if (isSpecial) {
             this.btnBack.active = true;
-        }
-        else {
+        } else {
             this.btnSet.active = true;
         }
         this.btnAddTube.active = true;
@@ -168,11 +167,10 @@ export default class GameSort extends cc.Component {
         // 更新关卡等级ui
         let level = 'Lv.' + String(DataManager.data.sortData.level);
         if (isSpecial) {
-            DataManager.setString(LangChars.SPECIAL, (chars: string)=>{
+            DataManager.setString(LangChars.SPECIAL, (chars: string) => {
                 this.labelLevel.getComponent(cc.Label).string = chars;
             });
-        }
-        else{
+        } else {
             this.labelLevel.getComponent(cc.Label).string = level;
         }
     }
@@ -188,8 +186,7 @@ export default class GameSort extends cc.Component {
             nodeY.opacity = 255;
             let itemLabel = nodeY.getChildByName('label');
             itemLabel.getComponent(cc.Label).string = '' + count;
-        }
-        else {
+        } else {
             nodeN.opacity = 255;
         }
     }
@@ -205,8 +202,7 @@ export default class GameSort extends cc.Component {
             nodeY.opacity = 255;
             let itemLabel = nodeY.getChildByName('label');
             itemLabel.getComponent(cc.Label).string = '' + count;
-        }
-        else {
+        } else {
             nodeN.opacity = 255;
         }
     }
@@ -216,25 +212,30 @@ export default class GameSort extends cc.Component {
         let path = '';
         if (isSpecial) {
             path = cfg.path + 'Else';
-        }
-        else {
+        } else {
             path = cfg.path;
             let sortLevel = DataManager.data.sortData.level;
-            if (sortLevel <= 100) {
-                path = this.resPath.levelColor.path;
+            if (sortLevel > 2000) {
+                path = path + '1';
+            } else if (sortLevel > 4000) {
+                path = path + '2';
+            } else if (sortLevel > 6000) {
+                path = path + '3';
+            } else if (sortLevel > 8000) {
+                path = path + '4';
+            } else if (sortLevel > 10000) {
+                path = path + '5';
+            } else if (sortLevel > 12000) {
+                path = path + '6';
+            } else if (sortLevel > 14000) {
+                path = path + '7';
+            } else if (sortLevel > 16000) {
+                path = path + '8';
+            } else if (sortLevel > 18000) {
+                path = path + '9';
             }
-            else if (sortLevel > 2000) { path = path + '1'; }
-            else if (sortLevel > 4000) { path = path + '2'; }
-            else if (sortLevel > 6000) { path = path + '3'; }
-            else if (sortLevel > 8000) { path = path + '4'; }
-            else if (sortLevel > 10000) { path = path + '5'; }
-            else if (sortLevel > 12000) { path = path + '6'; }
-            else if (sortLevel > 14000) { path = path + '7'; }
-            else if (sortLevel > 16000) { path = path + '8'; }
-            else if (sortLevel > 18000) { path = path + '9'; }
         }
-        console.log('bundle: ', cfg.bundle, '; path: ', path);
-        DataManager.loadBundleRes(cfg.bundle, path, (asset: cc.JsonAsset)=>{
+        DataManager.loadBundleRes(cfg.bundle, path, (asset: cc.JsonAsset) => {
             this.initLevel(asset.json, isSpecial, isCheck);
             this.playAniNotMove();// 游戏重新开始之后，ui不再跳
             NativeCall.showBanner();
@@ -244,7 +245,7 @@ export default class GameSort extends cc.Component {
     /**
      * 初始化游戏关卡
      * @param data 关卡数据
-     * @param isSpecial 是否未特殊关卡 
+     * @param isSpecial 是否未特殊关卡
      * @param isCheck 是否需要检测特殊关卡
      */
     initLevel(dataLevels: SortLevelData[], isSpecial: boolean, isCheck: boolean) {
@@ -260,20 +261,17 @@ export default class GameSort extends cc.Component {
             let levelMax = dataLevels.length;
             if (levelStart > levelMax - 1) {
                 dataOne = dataLevels[levelMax - 10 + (levelStart - levelMax) % 10];
-            }
-            else {
+            } else {
                 dataOne = dataLevels[levelStart];
             }
-        }
-        else {
-            let levelStart = 4;
+        } else {
+            let levelStart = 5;
             let levelDis = 3;
             let sortData = DataManager.data.sortData;
             this.isCoverBlock = sortData.level >= levelStart && (sortData.level - levelStart) % levelDis == 0;
             if (this.isCoverBlock) {
                 Common.log('开启遮罩关卡 sortLevel: ', sortData.level);
-            }
-            else {
+            } else {
                 Common.log('开启普通关卡 sortLevel: ', sortData.level);
             }
             // 选择关卡数据
@@ -290,7 +288,7 @@ export default class GameSort extends cc.Component {
             for (let j = 0; j < this.dataObj.blockTotal; j++) {
                 let id = i * this.dataObj.blockTotal + j;
                 if (blockTypes[id] > 0) {
-                    this.addBlock(nodeTube, { number: blockTypes[id], isCover: false });
+                    this.addBlock(nodeTube, {number: blockTypes[id], isCover: false});
                 }
             }
             // 特殊关卡 保留顶部 其他位置的覆盖
@@ -327,7 +325,7 @@ export default class GameSort extends cc.Component {
     /**
      * 检测 特殊关卡
      * @param isCheck 是否需要检测
-     * @returns 
+     * @returns
      */
     checkSpecial(isCheck) {
         if (!isCheck) {
@@ -338,7 +336,7 @@ export default class GameSort extends cc.Component {
         }
         let sortData = DataManager.data.sortData;
         // 关卡检测 5关后 每隔5关检测
-        let levelStart = 5;
+        let levelStart = 4;
         let levelDis = 5;
         let isCheckSpecial = sortData.level >= levelStart && (sortData.level - levelStart) % levelDis == 0;
         let specialData = DataManager.data.specialData;
@@ -349,13 +347,13 @@ export default class GameSort extends cc.Component {
         if (!isCheckSpecial) {
             return;
         }
-        kit.Popup.show(CConst.popup_path_special_tip, {}, { mode: PopupCacheMode.Frequent });
+        kit.Popup.show(CConst.popup_path_special_tip, {}, {mode: PopupCacheMode.Frequent});
     }
 
     /**
      * 检测 用户评价
      * @param isSpecial 特殊玩法 不检测
-     * @returns 
+     * @returns
      */
     checkEvaluate(isSpecial) {
         if (isSpecial) {
@@ -366,17 +364,21 @@ export default class GameSort extends cc.Component {
             return;
         }
         if (_data.sortData.level == 6 || _data.sortData.level == 26) {
-            kit.Popup.show(CConst.popup_path_user_evaluate, {}, { mode: PopupCacheMode.Frequent });
+            kit.Popup.show(CConst.popup_path_user_evaluate, {}, {mode: PopupCacheMode.Frequent});
         }
     }
 
     /**
      * 点击事件 瓶子
-     * @param tubeNew 
-     * @returns 
+     * @param tubeNew
+     * @returns
      */
     eventTouchTube(tubeNew: cc.Node) {
         if (this.dataObj.isFinish || this.dataObj.isMoving) return;//正在移动 或者 游戏结束
+        console.log("========eventTouchTube=====")
+        if (cc.find('Canvas').getChildByName('NewPlayer') != null) {
+            cc.find('Canvas').getChildByName('NewPlayer').destroy();
+        }
         let newTubeScript: SortTube = tubeNew.getComponent(SortTube);
         this.dataObj.stepCount += 1;
         let newBlockTop = newTubeScript.getBlockTop();
@@ -384,45 +386,58 @@ export default class GameSort extends cc.Component {
         // 瓶子抬起
         let funcMoveUp = () => {
             if (newBlockNum > 0) {
-                this.dataObj.isMoving = true;
+                console.log("=====抬起======", this.dataObj.tubeOld)
+                console.log("====抬起====", tubeNew.name, "===isPutting==", tubeNew.getComponent('SortTube').isPutting)
+                if (tubeNew.getComponent('SortTube').isPutting) return;
+                // this.dataObj.isMoving = true;
+                this.dataObj.tubeOld = tubeNew;
+                tubeNew.getComponent('SortTube').zIndexBlocks()
                 let yGoal = -newTubeScript.getTubeHeight() - this.dataObj.addHeight;
                 let time = Common.getMoveTime(newBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
+                if (time > 0.12) time = 0.12 //限定抬起的时间，目前位置1是0.086，位置2是0.114，位置3往后就超过了
+                // console.log("=====抬起的时间======", time)
                 cc.tween(newBlockTop).call(() => {
+                    // tubeNew.getComponent('SortTube').isMovingTube = true
+                    // console.log("======抬起====", tubeNew.name, "==isMovingTube==", tubeNew.getComponent('SortTube').isMovingTube)
                     newTubeScript.tubeSelect(true);
                     newBlockTop.getComponent(SortBlock).playAni();
                     // 瓶子zindex
                     this.nodeMain.children.forEach((tube: cc.Node) => {
                         if (tube.name == tubeNew.name) {
                             tube.zIndex = 100;
-                        }
-                        else {
+                        } else {
                             tube.getComponent(SortTube).resetIndex();
                         }
                     });
-                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
-                    this.dataObj.isMoving = false;
-                    this.dataObj.tubeOld = tubeNew;
+                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                    // tubeNew.getComponent('SortTube').isMovingTube = false
+                    // this.dataObj.isMoving = false;
+                    // this.dataObj.tubeOld = tubeNew;
                 }).start();
             }
         };
         // 点击过的瓶子 
         // 存在
         if (this.dataObj.tubeOld) {
-            this.dataObj.isMoving = true;
+            // this.dataObj.isMoving = true;
             let oldTubeScript: SortTube = this.dataObj.tubeOld.getComponent(SortTube);
             let oldBlockTop = oldTubeScript.getBlockTop();
             let oldBlockNum = oldTubeScript.nodeMain.childrenCount;
             // 两次点击相同的瓶子
             let isTubeSame = this.dataObj.tubeOld.name == tubeNew.name;
             if (isTubeSame) {
+                oldTubeScript.isMovingTube = true;//旧瓶子正在移动  当 旧瓶子正在移动 时候，点击事件是传不过来的
                 let yGoal = -oldTubeScript.hStart - oldTubeScript.hDis * (oldBlockNum - 1);
-                let time = Common.getMoveTime(oldBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
+                // let time = Common.getMoveTime(oldBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
+                let time = 0.08;//竞品都是0.08
+                // console.log("=====还原回去的时间======", time)
                 cc.tween(oldBlockTop).call(() => {
                     oldTubeScript.tubeSelect(false);
-                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
-                    this.dataObj.isMoving = false;
-                    this.dataObj.tubeOld = null;
+                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                    oldTubeScript.isMovingTube = false;//旧瓶子停止移动
+                    oldTubeScript.isPutting = false;
                 }).start();
+                this.dataObj.tubeOld = null;//新加
                 return;
             }
 
@@ -438,8 +453,7 @@ export default class GameSort extends cc.Component {
                     // 没被覆盖 并且 种类一样
                     if (!scriptBlockElse.isCover && oldBlockTop.getComponent(SortBlock).number == scriptBlockElse.number) {
                         arrOldBlockSame.push(oldBlockElse);
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
@@ -448,24 +462,37 @@ export default class GameSort extends cc.Component {
 
             // 旧瓶子恢复，新瓶子抬起
             let funcDownAndUp = () => {
+                oldTubeScript.isMovingTube = true;//旧瓶子正在移动  当 旧瓶子正在移动 时候，点击事件是传不过来的
+                this.dataObj.isMoving = true;
                 let yGoal = -oldTubeScript.hStart - oldTubeScript.hDis * (oldBlockNum - 1);
-                let time = Common.getMoveTime(oldBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
+                // let time = Common.getMoveTime(oldBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
+                let time = 0.08;//竞品都是0.08
+                // console.log("====旧瓶子恢复，新瓶子抬起=还原回去的时间======", time)
                 let isFull = newTubeScript.nodeMain.childrenCount >= this.dataObj.blockTotal;
+                oldTubeScript.isPutting = true;
                 cc.tween(oldBlockTop).call(() => {
                     oldTubeScript.tubeSelect(false);
                     if (isFull) {
                         newTubeScript.tubeFull();
                     }
-                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
-                    this.dataObj.isMoving = false;
+                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                    // this.dataObj.isMoving = false;
                     this.dataObj.tubeOld = null;
+                    oldTubeScript.isPutting = false;
+                    oldTubeScript.isMovingTube = false;//旧瓶子停止移动
                     if (!isFull) {
                         funcMoveUp();
                     }
+                    this.dataObj.isMoving = false;
                 }).start();
             };
             // 移动到目标位置
             let funcMoveGoal = () => {
+                this.dataObj.isMoving = true;
+                tubeNew.getComponent('SortTube').isPutting = true;
+                console.log("=====funcMoveGoal====", tubeNew.name, "==isPutting==", tubeNew.getComponent('SortTube').isPutting)
+                oldTubeScript.isMovingTube = true;//旧瓶子正在移动  当 旧瓶子正在移动 时候，点击事件是传不过来的
+
                 oldTubeScript.tubeSelect(false);
                 let arrOldBlockSame = getArrOldBlockSame();
 
@@ -481,10 +508,11 @@ export default class GameSort extends cc.Component {
                     newTubeScript.tubesuccess(this.dataObj.blockTotal);
                     if (isFinish) {
                         this.scheduleOnce(this.levelGameOver, 1.5);
-                    }
-                    else {
-                        this.dataObj.isMoving = false;
-                        this.dataObj.tubeOld = null;
+                    } else {
+                        // this.dataObj.isMoving = false;
+                        // this.dataObj.tubeOld = null;
+                        console.log("======可抬起=", tubeNew.name, "==isPutting==", tubeNew.getComponent('SortTube').isPutting)
+                        tubeNew.getComponent('SortTube').isPutting = false;
                         this.playAniNotMove();
                     }
                 };
@@ -494,18 +522,15 @@ export default class GameSort extends cc.Component {
             let isCanMove = false;
             if (newBlockNum == 0) {
                 isCanMove = true;
-            }
-            else if (newBlockNum == this.dataObj.blockTotal) {
+            } else if (newBlockNum == this.dataObj.blockTotal) {
                 isCanMove = false;
-            }
-            else {
+            } else {
                 isCanMove = newBlockTop.getComponent(SortBlock).number == oldBlockTop.getComponent(SortBlock).number;
             }
             // 可以移动
             if (isCanMove) {
                 funcMoveGoal();
-            }
-            else {
+            } else {
                 kit.Audio.playEffect(CConst.sound_path_click);
                 funcDownAndUp();
             }
@@ -532,10 +557,10 @@ export default class GameSort extends cc.Component {
      *  第一阶段：小球 以旧瓶子为根节点 进行移动
      *  第二节点：小球 以根节点为父节点 进行移动
      *  第三阶段：小球 以新瓶子为根节点 进行移动
-     * @param oldTube 
-     * @param newTube 
-     * @param arrBlock 
-     * @param callback 
+     * @param oldTube
+     * @param newTube
+     * @param arrBlock
+     * @param callback
      */
     async moveGoalBezier(oldTube: cc.Node, newTube: cc.Node, arrBlock: cc.Node[], isFinish: boolean, callback: Function) {
         let oldTubeScript = oldTube.getComponent(SortTube);
@@ -552,6 +577,10 @@ export default class GameSort extends cc.Component {
         let game_p_mid_down = cc.v3(game_p_start.x, game_p_finish.y);
         let game_p_mid_up = cc.v3(game_p_finish.x, game_p_start.y);
         let idDown = oldTube.y >= newTube.y;
+
+        console.log("========移动=====", this.dataObj.tubeOld.name)
+        this.dataObj.tubeOld = null//新加
+        this.dataObj.isMoving = false;
         for (let index = 0, length = arrBlock.length; index < length; index++) {
             let block = arrBlock[index];
             let objMove: DataMove = {
@@ -561,13 +590,15 @@ export default class GameSort extends cc.Component {
                 game_p_mid: idDown ? game_p_mid_down : game_p_mid_up,
                 game_p_finish: game_p_finish,
                 new_p_start: new_p_start,
-                new_p_finish: cc.v3(0, -hStart - hDis * (index + have)),
+                new_p_finish: cc.v3(0, -hStart - hDis * (index + newTubeScript.nodeMain.childrenCount)),
                 moveNum: length,
                 blocksNum: this.dataObj.blockTotal,
                 callback: index == length - 1 ? callback : null,
             };
             let scriptBlock = block.getComponent(SortBlock);
-            await scriptBlock.fly(objMove, oldTube, newTube, this.baseTime, this.baseDis, this.node);
+            await scriptBlock.fly(objMove, oldTube, newTube, this.baseTime, this.baseDis, this.node, function () {
+                if (index == arrBlock.length - 1) oldTubeScript.isMovingTube = false;//旧瓶子可以点击
+            });
             // 去掉遮罩
             oldTubeScript.hideBlockTopCover();
         }
@@ -590,9 +621,9 @@ export default class GameSort extends cc.Component {
 
     /**
      * 小动物移动之前，检测游戏是否可以结束（两个瓶子合并之后）
-     * @param oldTube 
-     * @param newTube 
-     * @returns 
+     * @param oldTube
+     * @param newTube
+     * @returns
      */
     checkFinishBefore(oldTube: cc.Node, newTube: cc.Node) {
         let isEnoughCur = true;
@@ -681,8 +712,7 @@ export default class GameSort extends cc.Component {
         let aniTop = this.uiTop.getComponent(cc.Animation);
         if (isNotMove) {
             aniTop.play('aniUIBottom');
-        }
-        else {
+        } else {
             aniTop.setCurrentTime(0);
             aniTop.stop('aniUIBottom');
         }
@@ -692,9 +722,8 @@ export default class GameSort extends cc.Component {
     eventBtnBack() {
         kit.Audio.playEffect(CConst.sound_path_click);
         if (this.isLevelSpecial) {
-            kit.Popup.show(CConst.popup_path_special_quit, {}, { mode: PopupCacheMode.Frequent });
-        }
-        else {
+            kit.Popup.show(CConst.popup_path_special_quit, {}, {mode: PopupCacheMode.Frequent});
+        } else {
             kit.Event.emit(CConst.event_enter_mainMenu);
         }
     }
@@ -807,8 +836,7 @@ export default class GameSort extends cc.Component {
             if (tubeNum >= tubeMax) {
                 this.btnAddTube.active = false;
             }
-        }
-        else {
+        } else {
             let funcA = () => {
                 NativeCall.logEventOne(GameDot.dot_addTube_succ);
                 this.addTube(tubeNum);
@@ -845,7 +873,7 @@ export default class GameSort extends cc.Component {
         this.nodeMain.opacity = opaStart;
         cc.tween(this.nodeMain).call(() => {
             this.maskBottom.active = true;
-        }).to(0.383, { opacity: opaFinish }, cc.easeSineInOut()).call(() => {
+        }).to(0.383, {opacity: opaFinish}, cc.easeSineInOut()).call(() => {
             this.maskBottom.active = false;
             callback && callback();
         }).start();
@@ -853,7 +881,7 @@ export default class GameSort extends cc.Component {
 
     /**
      * 刷新游戏内容
-     * @param isAdd 是否添加 
+     * @param isAdd 是否添加
      * @param tubeNum 瓶子数量
      * @param blocksObj 动物种类数组 空数组时，不添加动物
      */
@@ -863,8 +891,7 @@ export default class GameSort extends cc.Component {
             let nodeTube: cc.Node = null;
             if (isAddTube) {
                 nodeTube = this.addTube(i);
-            }
-            else {
+            } else {
                 nodeTube = this.nodeMain.children[i];
             }
             let blocksNum = blocksObj.length;
@@ -960,15 +987,14 @@ export default class GameSort extends cc.Component {
                     let blockObj: BlockObj;
                     if (block) {
                         let scriptBlock = block.getComponent(SortBlock);
-                        blockObj = { number: scriptBlock.number, isCover: scriptBlock.isCover };
-                    }
-                    else {
-                        blockObj = { number: 0, isCover: false };
+                        blockObj = {number: scriptBlock.number, isCover: scriptBlock.isCover};
+                    } else {
+                        blockObj = {number: 0, isCover: false};
                     }
                     blocksObj.push(blockObj);
                 }
             }
-            this.fanhuidata.push({ tubeNum: tubeNum, blocksObj: blocksObj });
+            this.fanhuidata.push({tubeNum: tubeNum, blocksObj: blocksObj});
         }
     }
 
@@ -980,11 +1006,9 @@ export default class GameSort extends cc.Component {
         let gameData = DataManager.data.sortData;
         if (gameData.level == 1 && gameData.newTip.cur == 0) {
             return CConst.newPlayer_guide_sort_1;
-        }
-        else if (gameData.level == 1 && gameData.newTip.cur == 1) {
+        } else if (gameData.level == 1 && gameData.newTip.cur == 1) {
             return CConst.newPlayer_guide_sort_2;
-        }
-        else if (gameData.level == 2 && gameData.newTip.cur == 2) {
+        } else if (gameData.level == 2 && gameData.newTip.cur == 2) {
             return CConst.newPlayer_guide_sort_3;
         }
         return null;
@@ -1043,8 +1067,7 @@ export default class GameSort extends cc.Component {
             if (!isReady) {
                 funcB();
             }
-        }
-        else {
+        } else {
             funcNext();
         }
     }

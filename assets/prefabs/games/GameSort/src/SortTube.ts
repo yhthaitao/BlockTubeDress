@@ -19,8 +19,11 @@ export default class SortTube extends cc.Component {
     hDis: number = 40;// 小动物之间的间距
     hElse: number = 180;// 点击范围增加
     zIndexInit: number = 0;
+    isMovingTube: boolean = false;//瓶子是否正在移动
+    isPutting: boolean = false;//瓶子是否正在放入羽毛球
 
     init(blockNum: number) {
+        this.node.stopAllActions();
         let uiBottom = this.nodeUI.getChildByName('bottom');
         let uiMid = this.nodeUI.getChildByName('mid');
         let uiTop = this.nodeUI.getChildByName('top');
@@ -35,6 +38,8 @@ export default class SortTube extends cc.Component {
         sprite.opacity = 0;
 
         this.particle.opacity = 0;
+        this.isMovingTube = false;//瓶子是否正在移动
+        this.isPutting = false;
         this.particle.y = -this.nodeUI.height * 0.1;
         this.dragon.opacity = 0;
         this.dragon.y = -this.nodeUI.height * 0.45;
@@ -57,12 +62,13 @@ export default class SortTube extends cc.Component {
             let isEnough = this.checkIsEnough(scriptMain.dataObj.blockTotal);
             if (isEnough) {
                 Common.log(' 瓶子已满 name: ', this.node.name);
+            } else {
+                console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
+                if (!this.isMovingTube) {
+                    scriptMain.eventTouchTube(this.node);
+                }
             }
-            else {
-                scriptMain.eventTouchTube(this.node);
-            }
-        }
-        else {
+        } else {
             Common.log(' 异常 找不到脚本 scriptMain ');
             return;
         }
@@ -175,6 +181,28 @@ export default class SortTube extends cc.Component {
         return block;
     };
 
+    getCoverBlockTop() {
+        let block: cc.Node;
+        let covers = []
+        let blocks = Common.getArrByPosY(this.nodeMain);
+        let length = blocks.length;
+        if (length > 0) {
+            block = blocks[blocks.length - 1];
+            let blockScript: SortBlock = block.getComponent(SortBlock);
+            covers = [block]
+
+            for (let i = blocks.length - 1; i >= 0; i--) {
+                if (i != blocks.length - 1) {
+                    let newScript: SortBlock = blocks[i].getComponent(SortBlock);
+                    if (blockScript.number == newScript.number) {
+                        covers.push(blocks[i])
+                    } else break;
+                }
+            }
+        }
+        return covers;
+    };
+
     initCover() {
         let blocks = Common.getArrByPosY(this.nodeMain);
         for (let index = 0, length = blocks.length; index < length; index++) {
@@ -189,12 +217,23 @@ export default class SortTube extends cc.Component {
     }
 
     hideBlockTopCover() {
-        let blockTop = this.getBlockTop();
-        if (blockTop) {
-            let scriptBlock = blockTop.getComponent('SortBlock');
-            if (scriptBlock.isCover) {
-                scriptBlock.hideCover();
+        console.log("===hideBlockTopCover===", this.node.name)
+        let blockTop = this.getCoverBlockTop();
+        console.log("===blockTop===", blockTop)
+        if (blockTop.length > 0) {
+            for (let i = 0; i < blockTop.length; i++) {
+                let scriptBlock = blockTop[i].getComponent('SortBlock');
+                if (scriptBlock.isCover) {
+                    scriptBlock.hideCover();
+                }
             }
+        }
+    };
+
+    zIndexBlocks(): void {
+        for (let index = this.nodeMain.childrenCount - 1; index >= 0; index--) {
+            this.nodeMain.children[index].zIndex = index;
+            this.nodeMain.children[index].y = -this.hStart - this.hDis * index;
         }
     };
 }

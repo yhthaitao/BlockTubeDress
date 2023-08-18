@@ -35,7 +35,7 @@ export default class GameWin extends cc.Component {
 
         this.nodeGreen.children.forEach((item) => { item.opacity = 0 });
 
-        this.nodeTitle.y = cc.winSize.height * 0.25;
+        this.nodeTitle.y = cc.winSize.height * 0.2;
         let titleBack = this.nodeTitle.getChildByName('back');
         titleBack.x = -cc.winSize.width * 0.5;
         titleBack.width = 0;
@@ -104,6 +104,7 @@ export default class GameWin extends cc.Component {
     }
 
     eventBtnNext() {
+        if (this.nodeNext.opacity != 255) return;
         if (this.isLock) {
             return;
         }
