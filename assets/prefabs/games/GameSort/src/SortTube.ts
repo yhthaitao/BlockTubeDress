@@ -63,7 +63,7 @@ export default class SortTube extends cc.Component {
             if (isEnough) {
                 Common.log(' 瓶子已满 name: ', this.node.name);
             } else {
-                console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
+                // console.log("===eventBtn===", this.node.name, '==isMovingTube==', this.isMovingTube)
                 if (!this.isMovingTube) {
                     scriptMain.eventTouchTube(this.node);
                 }
@@ -217,9 +217,9 @@ export default class SortTube extends cc.Component {
     }
 
     hideBlockTopCover() {
-        console.log("===hideBlockTopCover===", this.node.name)
+        // console.log("===hideBlockTopCover===", this.node.name)
         let blockTop = this.getCoverBlockTop();
-        console.log("===blockTop===", blockTop)
+        // console.log("===blockTop===", blockTop)
         if (blockTop.length > 0) {
             for (let i = 0; i < blockTop.length; i++) {
                 let scriptBlock = blockTop[i].getComponent('SortBlock');

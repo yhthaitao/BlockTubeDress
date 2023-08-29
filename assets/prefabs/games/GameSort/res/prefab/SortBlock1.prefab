@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "sortBlock",
+    "_name": "SortBlock1",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -185,7 +185,7 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "85874832-1530-423e-8a52-48d10a2d0258"
+      "__uuid__": "55b2af0d-903d-4383-b126-dbf2e0c8ffbd"
     },
     "fileId": "c4zYbWNS9MCYoCWATKT2lv",
     "sync": false
@@ -292,7 +292,7 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "85874832-1530-423e-8a52-48d10a2d0258"
+      "__uuid__": "55b2af0d-903d-4383-b126-dbf2e0c8ffbd"
     },
     "fileId": "e93WiRtcRBf7a5+m32b3sJ",
     "sync": false
@@ -374,13 +374,13 @@
         "__uuid__": "eca5d2f2-8ef6-41c2-bbe6-f9c79d09c432"
       }
     ],
-    "_armatureName": "ziyi",
+    "_armatureName": "fenzi",
     "_animationName": "",
     "_preCacheMode": 0,
     "_cacheMode": 0,
     "playTimes": -1,
     "premultipliedAlpha": false,
-    "_armatureKey": "6f535816-b7be-4427-a477-bd9efcb58735#e56a4f29-8ee2-49fa-9ae2-a2a60b97aa36",
+    "_armatureKey": "7db9037c-6afd-435b-a8f9-044f0a5dce0d#74e0418e-5e43-4e0e-8daf-f3bfcbdbf3b3",
     "_accTime": 0,
     "_playCount": 0,
     "_frameCache": null,
@@ -388,10 +388,10 @@
     "_playing": false,
     "_armatureCache": null,
     "_N$dragonAsset": {
-      "__uuid__": "6f535816-b7be-4427-a477-bd9efcb58735"
+      "__uuid__": "7db9037c-6afd-435b-a8f9-044f0a5dce0d"
     },
     "_N$dragonAtlasAsset": {
-      "__uuid__": "e56a4f29-8ee2-49fa-9ae2-a2a60b97aa36"
+      "__uuid__": "74e0418e-5e43-4e0e-8daf-f3bfcbdbf3b3"
     },
     "_N$_defaultArmatureIndex": 0,
     "_N$_animationIndex": 0,
@@ -407,7 +407,7 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "85874832-1530-423e-8a52-48d10a2d0258"
+      "__uuid__": "55b2af0d-903d-4383-b126-dbf2e0c8ffbd"
     },
     "fileId": "035FL1P75KFYwA+E2glW1Q",
     "sync": false
@@ -437,7 +437,7 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "85874832-1530-423e-8a52-48d10a2d0258"
+      "__uuid__": "55b2af0d-903d-4383-b126-dbf2e0c8ffbd"
     },
     "fileId": "",
     "sync": false

@@ -1,7 +1,7 @@
-import { kit } from "../kit/kit";
+import {kit} from "../kit/kit";
 import CConst from "./CConst";
 import Common from "./Common";
-import DataManager, { PropType } from "./DataManager";
+import DataManager, {PropType} from "./DataManager";
 import GameDot from "./GameDot";
 
 /** 原生交互 */
@@ -15,6 +15,8 @@ class NativeCall {
         return this._instance;
     };
 
+    noAdsTime = 60;//广告时间限制
+    lastAdsTime = 0;//上一次看广告时间
     /** 云加载 开始 */
     public cloudLoadStart(): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
@@ -96,6 +98,7 @@ class NativeCall {
 
     funcVideoSuccess: Function = null;
     funcVideoFail: Function = null;
+
     /** 视频 播放 */
     public videoShow(funcA: Function, funcB: Function): void {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
@@ -123,6 +126,7 @@ class NativeCall {
         this.funcVideoSuccess && this.funcVideoSuccess();
         DataManager.updateAdCount();
         this.sTsEvent();
+        this.lastAdsTime = (new Date().valueOf() - DataManager.data.installtime) / 1000;
     }
 
     /** 视频 播放失败 */
@@ -158,6 +162,7 @@ class NativeCall {
 
     funcAdvertSuccess: Function = null;
     funcAdvertFail: Function = null;
+
     /** 广告 播放 */
     public advertShow(funcA: Function, funcB: Function) {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return;
@@ -180,6 +185,7 @@ class NativeCall {
         this.funcAdvertSuccess && this.funcAdvertSuccess();
         DataManager.updateAdCount();
         this.sTsEvent();
+        this.lastAdsTime = (new Date().valueOf() - DataManager.data.installtime) / 1000;
     }
 
     /** 游戏从后台返回的调用 */
@@ -193,9 +199,34 @@ class NativeCall {
                 // 打点 插屏播放成功（游戏从后台返回）
                 this.logEventTwo(GameDot.dot_ads_advert_succe_back, String(DataManager.data.sortData.level));
             };
-            let funcB = (err: any) => { };
+            let funcB = (err: any) => {
+            };
             DataManager.playAdvert(funcA, funcB);
         }
+        // let adsDays = ((new Date().valueOf() - this.lastAdsTime) / 1000);
+        // console.log("=====adsTimeTrue=adsDays====", adsDays, "s====", adsDays / 86400, "天===")
+        // if (adsDays <= 86400) {
+        //     //新用户 首日用户
+        //     return
+        // } else if (this.lastAdsTime == 0) {
+        //     this.lastAdsTime = adsDays
+        // } else {
+        //     //超过3日的，就是1关30s
+        //     if (adsDays - this.lastAdsTime <= 60) {
+        //         return;
+        //     }
+        //     this.logEventThree(GameDot.dot_adReq, "inter_backGame", "Interstital");
+        //     let isReady = this.advertCheck();
+        //     if (isReady) {
+        //         let funcA = () => {
+        //             // 打点 插屏播放成功（游戏从后台返回）
+        //             this.logEventTwo(GameDot.dot_ads_advert_succe_back, String(DataManager.data.sortData.level));
+        //         };
+        //         let funcB = (err: any) => {
+        //         };
+        //         DataManager.playAdvert(funcA, funcB);
+        //     }
+        // }
     }
 
     public advertFail() {
@@ -313,7 +344,7 @@ class NativeCall {
     /**
      * 检测 本地语言
      * @param langDefault 默认语言
-     * @returns 
+     * @returns
      */
     public checkLang(langDefault: string) {
         if (typeof (jsb) == "undefined" || cc.sys.os == cc.sys.OS_IOS) return langDefault;

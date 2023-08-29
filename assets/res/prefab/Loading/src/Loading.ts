@@ -1,9 +1,9 @@
-import { kit } from "../../../../src/kit/kit";
+import {kit} from "../../../../src/kit/kit";
 import CConst from "../../../../src/config/CConst";
 import Common from "../../../../src/config/Common";
-import DataManager, { LangChars } from "../../../../src/config/DataManager";
+import DataManager, {LangChars} from "../../../../src/config/DataManager";
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class Loading extends cc.Component {
 
@@ -23,9 +23,12 @@ export default class Loading extends cc.Component {
 
     initLabel() {
         let itemLabel = this.nodeProcess.getChildByName('label');
-        DataManager.setString(LangChars.Loading, (chars: string)=>{
+        DataManager.setString(LangChars.Loading, (chars: string) => {
             itemLabel.getComponent(cc.Label).string = chars;
         });
+        if (DataManager.langCur == 'zh') {
+            this.nodeLogo.scale = 1.3
+        }
     }
 
     protected start(): void {
@@ -46,15 +49,15 @@ export default class Loading extends cc.Component {
         let tween = cc.tween;
         tween(this.nodeLogo).delay(tDelay)
             .parallel(
-                tween().to(tMove, { y: y1 }, cc.easeSineOut()),
-                tween().to(tOpa, { opacity: 255 })
+                tween().to(tMove, {y: y1}, cc.easeSineOut()),
+                tween().to(tOpa, {opacity: 255})
             )
-            .to(.4, { y: y2 }, cc.easeSineInOut())
+            .to(.4, {y: y2}, cc.easeSineInOut())
             .start();
 
         this.nodeProcess.active = true;
         tween(this.nodeProcess).delay(tDelay)
-            .to(tOpa, { opacity: 255 }).call(this.playAniProcess.bind(this))
+            .to(tOpa, {opacity: 255}).call(this.playAniProcess.bind(this))
             .start();
     }
 
@@ -62,7 +65,7 @@ export default class Loading extends cc.Component {
     playAniProcess() {
         let tShow = .383;
         let processBar = this.nodeProcess.getChildByName('bar');
-        cc.tween(processBar).to(tShow * 4, { width: this.width * 0.8 }, cc.easeSineInOut()).call(() => {
+        cc.tween(processBar).to(tShow * 4, {width: this.width * 0.8}, cc.easeSineInOut()).call(() => {
             kit.Event.emit(CConst.event_complete_loading);
         }).start();
 
@@ -70,7 +73,7 @@ export default class Loading extends cc.Component {
         let itemLabel = this.nodeProcess.getChildByName('label');
         let label = itemLabel.getComponent(cc.Label);
         let funcLabel = () => {
-            DataManager.setString(LangChars.Loading, (chars: string)=>{
+            DataManager.setString(LangChars.Loading, (chars: string) => {
                 if (label.string == chars) label.string = chars + '.';
                 else if (label.string == chars + '.') label.string = chars + '..';
                 else if (label.string == chars + '..') label.string = chars + '...';
@@ -87,13 +90,13 @@ export default class Loading extends cc.Component {
         let processBar = this.nodeProcess.getChildByName('bar');
         let tween = cc.tween;
         tween(processBar)
-            .to(tShow, { width: this.width }, cc.easeSineInOut())
+            .to(tShow, {width: this.width}, cc.easeSineInOut())
             .delay(tDelay)
             .call(() => {
                 this.unscheduleAllCallbacks();
                 // 离开动画
                 let tOpa = .2;
-                tween(this.nodeProcess).to(tOpa, { opacity: 0 }).call(() => {
+                tween(this.nodeProcess).to(tOpa, {opacity: 0}).call(() => {
                     callback && callback();
                 }).start();
             })

@@ -67,7 +67,6 @@ export default class MainScene extends cc.Component {
             kit.Audio.initAudio();
             kit.Audio.playMusic(CConst.sound_path_music);
         };
-        NativeCall.logEventOne('onCreat_001');
         // 初始化游戏数据
         DataManager.initData(this.nodeVideo, () => {
             funcEvaluate();
@@ -84,11 +83,9 @@ export default class MainScene extends cc.Component {
 
     /** 初始化 ui */
     initUI(): void {
-        NativeCall.logEventOne('onCreat_004');
         this.initLoading();
         this.initNoVideo();
         this.initPopup();
-        NativeCall.logEventOne('onCreat_005');
         this.loadComponents();
     };
 
@@ -124,7 +121,6 @@ export default class MainScene extends cc.Component {
         let loadBundleRes = (index, callback) => {
             if (index < lenPrefab) {
                 let cfg: { bundle: string, path: string } = ResPath[arrName[index]];
-                NativeCall.logEventThree('onCreat_006', cfg.bundle, cfg.path);
                 DataManager.loadBundleRes(cfg.bundle, cfg.path, (asset) => {
                     index++;
                     loadBundleRes(index, callback);
@@ -195,7 +191,7 @@ export default class MainScene extends cc.Component {
         DataManager.setGameState(GameState.stateMainMenu);
         if (DataManager.stateLast == GameState.stateGame) {
             this.nodeGame.active = false;
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
         }
 
         if (this.NodeMainMenu) {

@@ -1,9 +1,9 @@
-import { kit } from "../../../../src/kit/kit";
+import {kit} from "../../../../src/kit/kit";
 import CConst from "../../../../src/config/CConst";
 import Common from "../../../../src/config/Common";
-import DataManager, { LangChars } from "../../../../src/config/DataManager";
+import DataManager, {LangChars} from "../../../../src/config/DataManager";
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class GameWin extends cc.Component {
 
@@ -18,6 +18,7 @@ export default class GameWin extends cc.Component {
 
     isLock: boolean = false;
     initMask: number = 0;
+
     protected onLoad(): void {
         this.initMask = this.mask.opacity;
         this.mask.opacity = 0;
@@ -33,7 +34,9 @@ export default class GameWin extends cc.Component {
         this.mask.width = cc.winSize.width;
         this.mask.height = cc.winSize.height;
 
-        this.nodeGreen.children.forEach((item) => { item.opacity = 0 });
+        this.nodeGreen.children.forEach((item) => {
+            item.opacity = 0
+        });
 
         this.nodeTitle.y = cc.winSize.height * 0.2;
         let titleBack = this.nodeTitle.getChildByName('back');
@@ -43,10 +46,12 @@ export default class GameWin extends cc.Component {
         titleIcon.opacity = 0;
 
         this.nodeParticle.y = this.nodeTitle.y - 100;
-        this.nodeParticle.children.forEach((item) => { item.opacity = 0 });
+        this.nodeParticle.children.forEach((item) => {
+            item.opacity = 0
+        });
 
         this.nodeNext.opacity = 0;
-        DataManager.setString(LangChars.Next, (chars: string)=>{
+        DataManager.setString(LangChars.Next, (chars: string) => {
             this.labelNext.getComponent(cc.Label).string = chars;
         });
     };
@@ -66,13 +71,13 @@ export default class GameWin extends cc.Component {
         cc.tween(this.node).call(() => {
             // node mask
             this.mask.opacity = 0;
-            cc.tween(this.mask).to(time_mask_opa, { opacity: this.initMask }).start();
+            cc.tween(this.mask).to(time_mask_opa, {opacity: this.initMask}).start();
         }).delay(0.5).call(() => {
             // node title
             let titleBack = this.nodeTitle.getChildByName('back');
-            cc.tween(titleBack).to(time_title_back_width, { width: cc.winSize.width }).start();
+            cc.tween(titleBack).to(time_title_back_width, {width: cc.winSize.width}).start();
             let titleIcon = this.nodeTitle.getChildByName('icon');
-            cc.tween(titleIcon).delay(time_title_back_width).to(time_title_icon_opa, { opacity: 255 }).start();
+            cc.tween(titleIcon).delay(time_title_back_width).to(time_title_icon_opa, {opacity: 255}).start();
         }).delay(time_title_back_width + time_title_icon_opa).call(() => {
             // node particle
             this.nodeParticle.children.forEach((item) => {
@@ -83,9 +88,9 @@ export default class GameWin extends cc.Component {
             // node next
             let yNext = this.nodeNext.y;
             cc.tween(this.nodeNext).parallel(
-                cc.tween().to(time_next_up, { y: yNext + 50 }, cc.easeSineOut()),
-                cc.tween().to(time_next_up, { opacity: 255 }),
-            ).to(time_next_down, { y: yNext }, cc.easeSineIn()).start();
+                cc.tween().to(time_next_up, {y: yNext + 50}, cc.easeSineOut()),
+                cc.tween().to(time_next_up, {opacity: 255}),
+            ).to(time_next_down, {y: yNext}, cc.easeSineIn()).start();
         }).delay(time_next_up + time_next_down).call(() => {
             // node green
             this.schedule(this.cycleParticle, time_particle_green);
@@ -116,14 +121,18 @@ export default class GameWin extends cc.Component {
     /** 播放动画 离开结算界面 */
     playAniLeave() {
         // 动画结束后 进入下一关
+        let self = this;
         let funcAfter = () => {
             this.node.removeFromParent();
             kit.Event.emit(CConst.event_enter_nextLevel, false, true);
         };
-        cc.tween(this.nodeNext).to(0.5, { opacity: 0 }).start();
-        cc.tween(this.nodeTitle).parallel(
-            cc.tween().to(0.5, { y: cc.winSize.height * 0.5 }, cc.easeSineInOut()),
-            cc.tween().to(0.5, { opacity: 0 }),
-        ).call(funcAfter).start();
+        cc.tween(this.nodeNext).to(0.5, {opacity: 0}).start();
+        // cc.tween(this.nodeTitle).parallel(
+        //     cc.tween().to(0.5, { y: cc.winSize.height * 0.5 }, cc.easeSineInOut()),
+        //     cc.tween().to(0.5, { opacity: 0 }),
+        // ).call(funcAfter).start();
+        cc.tween(this.nodeTitle).call(function () {
+            cc.tween(self.nodeTitle.getChildByName("icon")).to(0.3, {opacity: 0}).start();
+        }).to(0.3, {x: cc.winSize.width}).call(funcAfter).start();
     }
 }

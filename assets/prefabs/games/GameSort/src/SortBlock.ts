@@ -12,15 +12,20 @@ export default class SortBlock extends cc.Component {
     @property(cc.Node) nodeCover: cc.Node = null;
     @property(cc.Node) nodeUp: cc.Node = null;
 
-    dataDress = [
-        'hongyi', 'huangyi', 'lvyi', 'lanyi', 'ziyi', 'heiyi', 'baiyi', 'qingyi', 'juyi', 'tuhuang', 'yingguanglv',
+    dress = [
+        'hongyi', 'huangyi', 'lvyi', 'lanyi', 'ziyi', 'heiyi', 'baiyi', 'qingyi', 'juyi', 'tuhuang', 'yinguanglv'
     ];
+    dress1 = [
+        'hong', 'huang', 'lan', 'lv', 'zi', 'ju', 'qing', 'yingguanglv', 'fenzi', 'tuhuang', 'bai', 'qianqing'
+    ];
+    dataDress = [];
     actName = 'newAnimation';
 
     number: number = 0;
     isCover: boolean = false;
 
     init(type: number, cover: boolean) {
+        this.dataDress = this.dress1;
         this.setColor(type);
         this.setCover(cover);
     };

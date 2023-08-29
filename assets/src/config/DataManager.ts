@@ -103,6 +103,7 @@ class DataManager {
         revenue: '0',// 收入
         propAddTupe: 2,// 初始有两个加瓶子的道具
         rePlayNum: 1,// 可以重玩的次数，限30关之前；
+        returnCount: 6,
         // 关卡数据 基础
         sortData: {
             level: 1,// 当前关卡====添加粒子效果 后面的
@@ -124,7 +125,13 @@ class DataManager {
     public initData(nodeAni: cc.Node, callback) {
         let _data = JSON.parse(cc.sys.localStorage.getItem('gameData'));
         if (_data) {
-            this.data = Common.clone(_data);
+            // this.data = Common.clone(_data);
+            let data = Common.clone(_data);
+            for (const key in data) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                    this.data[key] = data[key];
+                }
+            }
         }
         else {
             cc.sys.localStorage.setItem('gameData', JSON.stringify(_data));
@@ -145,7 +152,6 @@ class DataManager {
         let loadLocalPng = (index) => {
             if (index < lenPng) {
                 let pathPng = './language/img/' + this.langCur + '/' + arrName[index];
-                NativeCall.logEventTwo('onCreat_002', pathPng);
                 this.loadRes(pathPng, (asset: any) => {
                     index++;
                     loadLocalPng(index);
@@ -155,7 +161,6 @@ class DataManager {
                 callback && callback();
             }
         };
-        NativeCall.logEventTwo('onCreat_002', pathText);
         // 资源下载 先下载text 再下载png
         this.loadRes(pathText, (asset: any)=>{
             loadLocalPng(0);
@@ -218,7 +223,7 @@ class DataManager {
         if (this.data.adsRemove) {
             return false;
         }
-        return this.data.sortData.level > this.adStartLevel;
+        return this.data.sortData.level > 3;
     }
 
     /**
@@ -260,7 +265,7 @@ class DataManager {
     public playVideo(funcA: Function, funcB: Function): boolean {
         let isReady = NativeCall.videoCheck();
         if (isReady) {
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
             this.adAnimPlay(NativeCall.videoShow.bind(NativeCall, funcA, funcB));
         }
         return isReady;
@@ -275,7 +280,7 @@ class DataManager {
     public playAdvert(funcA: Function, funcB: Function): boolean {
         let isReady = NativeCall.advertCheck();
         if (isReady) {
-            NativeCall.closeBanner();
+            // NativeCall.closeBanner();
             this.adAnimPlay(NativeCall.advertShow.bind(NativeCall, funcA, funcB));
         }
         return isReady;
@@ -350,7 +355,6 @@ class DataManager {
             cc.resources.load(path, (err: Error, assetNew: any) => {
                 if (err) {
                     Common.log("加载失败：", path);
-                    NativeCall.logEventThree('onCreat_003', err.name, err.message);
                 }
                 else {
                     Common.log("加载资源：", path);
