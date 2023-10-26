@@ -23,6 +23,7 @@ export default class SortBlock extends cc.Component {
 
     number: number = 0;
     isCover: boolean = false;
+    indexNumber: number = 0;
 
     init(type: number, cover: boolean) {
         this.dataDress = this.dress1;
@@ -99,6 +100,7 @@ export default class SortBlock extends cc.Component {
                 this.node.scale = scaleBlock;
                 this.node.zIndex = newTubeScript.nodeMain.childrenCount - 1;
                 newTube.zIndex = 200;
+                this.indexNumber = newTubeScript.nodeMain.childrenCount;
             }).call(() => {
                 newTube.getComponent('SortTube').isPutting = true;
                 // console.log("======不可抬起=", newTube.name, "==isPutting==", newTube.getComponent('SortTube').isPutting)

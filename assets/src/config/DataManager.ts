@@ -38,6 +38,8 @@ export const LangChars = {
     PLAY: "PLAY",
     SKIP: "SKIP",
     Next: "Next",
+    Restart: "Restart",
+    Exit: "Exit"
 };
 
 /** 本地化 资源类型 */
@@ -91,9 +93,9 @@ class DataManager {
     /** 初始数据 */
     data = {
         // 用户初始化数据
-        userInfo: { id: 0, name: "Tony" },
+        userInfo: {id: 0, name: "Tony"},
         adsRemove: false,// 是否去除广告
-        adRecord: { time: 0, level: 0 },// 上一次广告计时
+        adRecord: {time: 0, level: 0},// 上一次广告计时
         adCount: 0,// 广告计数
         s2sCount: 0,// 回传计数
         checkAdCpe: true,// 打点记录 只打一次
@@ -102,6 +104,7 @@ class DataManager {
         installtime: new Date().valueOf(),
         revenue: '0',// 收入
         propAddTupe: 2,// 初始有两个加瓶子的道具
+        helpCount: 2, // 初始给两个提示道具
         rePlayNum: 1,// 可以重玩的次数，限30关之前；
         returnCount: 6,
         // 关卡数据 基础
@@ -118,8 +121,22 @@ class DataManager {
             level: 1,// 特殊关卡
             isFirst: true,
             curLevelData: [],// 存放关卡数据
-        }
+        },
+        // tile玩法官咖
+        match: {
+            level: 1,// 特殊关卡
+            isFirst: true,
+            curLevelData: [],// 存放关卡数据
+            lastTime: 0,//上一次玩的时间
+            passLevel: 0 //过了几关
+        },
     };
+    // // 皮肤
+    // collect: {bg: ['moren'], cloth: ['girl']},
+    // useTube: 0,//使用了多少次
+    // useReturn: 0,
+    // // 成就领取记录
+    // achieve: {sortLV: 0, specialLV: 0, matchLV: 0, tubeNum: 0, returnNum: 0}
 
     /** 初始化数据 */
     public initData(nodeAni: cc.Node, callback) {
@@ -132,8 +149,7 @@ class DataManager {
                     this.data[key] = data[key];
                 }
             }
-        }
-        else {
+        } else {
             cc.sys.localStorage.setItem('gameData', JSON.stringify(_data));
         }
         // 初始化视频动画
@@ -156,13 +172,12 @@ class DataManager {
                     index++;
                     loadLocalPng(index);
                 });
-            }
-            else {
+            } else {
                 callback && callback();
             }
         };
         // 资源下载 先下载text 再下载png
-        this.loadRes(pathText, (asset: any)=>{
+        this.loadRes(pathText, (asset: any) => {
             loadLocalPng(0);
         });
     }
@@ -208,7 +223,7 @@ class DataManager {
     /**
      * 存储数据
      * @param isSaveCloud 是否存储到云端
-     * @returns 
+     * @returns
      */
     public setData(isSaveCloud = false) {
         let dataString = JSON.stringify(this.data);
@@ -228,16 +243,15 @@ class DataManager {
 
     /**
      * 检测插屏是否开启(针对游戏结束自动弹出的广告)
-     * @param levelNow 检测时的关卡 
-     * @returns 
+     * @param levelNow 检测时的关卡
+     * @returns
      */
     public checkIsPlayAdvert(levelNow: number) {
         let levelLimit = this.adStartLevel + 1;
         Common.log(' cocos checkIsPlayAds() 插屏检测 levelNow: ', levelNow, '; levelLimit: ', levelLimit);
         if (levelNow < levelLimit) {
             return false;
-        }
-        else if (levelNow == levelLimit) {
+        } else if (levelNow == levelLimit) {
             return true;
         }
 
@@ -249,8 +263,7 @@ class DataManager {
         Common.log(' 检测 时间 timeLast: ', timeLast, '; timeNow: ', timeNow, '; timeRecord: ', timeRecord);
         if (levelNow > 20) {
             return timeLast >= 30;
-        }
-        else {
+        } else {
             Common.log(' 检测 关卡 levelLast: ', levelLast, '; levelNow: ', levelNow, '; levelRecord: ', levelRecord);
             return timeLast >= 90 || levelLast >= 3;
         }
@@ -258,8 +271,8 @@ class DataManager {
 
     /**
      * 播放奖励视频
-     * @param funcA 
-     * @param funcB 
+     * @param funcA
+     * @param funcB
      * @returns
      */
     public playVideo(funcA: Function, funcB: Function): boolean {
@@ -273,9 +286,9 @@ class DataManager {
 
     /**
      * 播放广告视频
-     * @param funcA 
-     * @param funcB 
-     * @returns 
+     * @param funcA
+     * @param funcB
+     * @returns
      */
     public playAdvert(funcA: Function, funcB: Function): boolean {
         let isReady = NativeCall.advertCheck();
@@ -343,20 +356,18 @@ class DataManager {
 
     /**
      * 加载resource资源
-     * @param path 
-     * @returns 
+     * @param path
+     * @returns
      */
     public loadRes(path: string, callback: Function) {
         let assetOld = this.objResources[path];
         if (assetOld) {
             callback && callback(assetOld);
-        }
-        else {
+        } else {
             cc.resources.load(path, (err: Error, assetNew: any) => {
                 if (err) {
                     Common.log("加载失败：", path);
-                }
-                else {
+                } else {
                     Common.log("加载资源：", path);
                     this.objResources[path] = assetNew;
                     callback && callback(assetNew);
@@ -367,13 +378,12 @@ class DataManager {
 
     /** 加载bundle资源 */
     public loadBundleRes(bundleName: string, pathName: string, callback: Function) {
-        let funcAfter = (bundle: cc.AssetManager.Bundle)=>{
+        let funcAfter = (bundle: cc.AssetManager.Bundle) => {
             let asset = this.objResources[pathName];
             if (asset) {
                 callback && callback(asset);
-            }
-            else{
-                bundle.load(pathName, (e, asset)=>{
+            } else {
+                bundle.load(pathName, (e, asset) => {
                     if (asset) {
                         this.objResources[pathName] = asset;
                         callback && callback(asset);
@@ -384,9 +394,8 @@ class DataManager {
         let bundle: cc.AssetManager.Bundle = this.objBundle[bundleName];
         if (bundle) {
             funcAfter(bundle);
-        }
-        else{
-            cc.assetManager.loadBundle(bundleName, (e, bundle: cc.AssetManager.Bundle)=>{
+        } else {
+            cc.assetManager.loadBundle(bundleName, (e, bundle: cc.AssetManager.Bundle) => {
                 if (bundle) {
                     this.objBundle[bundleName] = bundle;
                     funcAfter(this.objBundle[bundleName]);

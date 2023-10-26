@@ -18,6 +18,7 @@ export default class GameWin extends cc.Component {
 
     isLock: boolean = false;
     initMask: number = 0;
+    gameType: string = 'GameSort';
 
     protected onLoad(): void {
         this.initMask = this.mask.opacity;
@@ -124,7 +125,14 @@ export default class GameWin extends cc.Component {
         let self = this;
         let funcAfter = () => {
             this.node.removeFromParent();
-            kit.Event.emit(CConst.event_enter_nextLevel, false, true);
+            if (this.gameType == 'GameSort') {
+                kit.Event.emit(CConst.event_enter_nextLevel, false, true, false);
+            } else {
+                kit.Event.emit(CConst.event_enter_nextMatchLevel, false, true);
+                if (DataManager.data.match.passLevel >= 5) {
+                    kit.Event.emit(CConst.event_enter_gameSort, false, true, false);
+                }
+            }
         };
         cc.tween(this.nodeNext).to(0.5, {opacity: 0}).start();
         // cc.tween(this.nodeTitle).parallel(

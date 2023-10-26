@@ -1,9 +1,9 @@
-import { kit } from "../../../../src/kit/kit";
+import {kit} from "../../../../src/kit/kit";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
 import SortBlock from "./SortBlock";
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class SortTube extends cc.Component {
 
@@ -80,8 +80,7 @@ export default class SortTube extends cc.Component {
             if (index < length) {
                 item.opacity = 255;
                 item.position = this.nodeMain.children[index].position;
-            }
-            else {
+            } else {
                 item.opacity = 0;
             }
         });
@@ -123,9 +122,8 @@ export default class SortTube extends cc.Component {
                 this.dragon.opacity = 0;
                 cc.tween(this.dragon).delay(0.6).call(() => {
                     res(true);
-                }).to(0.4, { opacity: 255 }).start();
-            }
-            else {
+                }).to(0.4, {opacity: 255}).start();
+            } else {
                 res(false);
             }
         });
@@ -174,8 +172,7 @@ export default class SortTube extends cc.Component {
         let length = blocks.length;
         if (length > 0) {
             block = blocks[length - 1];
-        }
-        else {
+        } else {
             block = null;
         }
         return block;
@@ -231,9 +228,13 @@ export default class SortTube extends cc.Component {
     };
 
     zIndexBlocks(): void {
+        // 衣服是 zIndex越大，y越小
         for (let index = this.nodeMain.childrenCount - 1; index >= 0; index--) {
-            this.nodeMain.children[index].zIndex = index;
-            this.nodeMain.children[index].y = -this.hStart - this.hDis * index;
+            // this.nodeMain.children[index].zIndex = index;
+            // this.nodeMain.children[index].y = -this.hStart - this.hDis * index;
+            this.nodeMain.children[index].zIndex = this.nodeMain.children[index].getComponent(SortBlock).indexNumber - 1;
+            this.nodeMain.children[index].y = -this.hStart - this.hDis * (this.nodeMain.children[index].getComponent(SortBlock).indexNumber - 1);
+            // console.log("==2======indexNumber===", this.nodeMain.children[index].getComponent(SortBlock).indexNumber, ",index=", index, "=y==", this.nodeMain.children[index].y, "=zIndex==", this.nodeMain.children[index].zIndex)
         }
     };
 }

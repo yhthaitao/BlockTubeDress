@@ -17,6 +17,8 @@
     "PLAY": "PLAY",
     "SKIP": "SKIP",
     "TipFull": "Full",
-    "Next": "NEXT"
+    "Next": "NEXT",
+    "Restart": "RESTART",
+    "Exit": "EXIT"
 }
 

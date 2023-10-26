@@ -16,6 +16,8 @@ const CConst = {
     /*****************************************************************************************/
     zIndex_menu: 1,
     zIndex_game: 2,
+    zIndex_gameMatch: 3,
+    zIndex_gameOver: 996,
     zIndex_gameWin: 997,
     zIndex_newPlayer: 998,
     zIndex_loading: 999,
@@ -41,10 +43,14 @@ const CConst = {
     event_enter_gameWin: 'event_enter_gameWin',
     /** 进入 下一关游戏 */
     event_enter_nextLevel: 'event_enter_nextLevel',
+    /** 进入 下一关游戏 */
+    event_enter_nextMatchLevel: 'event_enter_nextMatchLevel',
     /** 提示：没有视频 */
     event_tip_noVideo: 'event_tip_noVideo',
     /** 提示：没有网络 */
     event_tip_noNetwork: 'event_tip_noNetwork',
+    /** 进入 胜利 */
+    event_enter_gameOver: 'event_enter_gameOver',
     /*************************************** end **************************************************/
 
 
@@ -80,6 +86,7 @@ const CConst = {
     sound_path_finish: './audio/finish',
     sound_path_ballSort: './audio/ballSort',
     sound_path_ballLong: './audio/ballLong',
+    sound_path_clean: './audio/clean',
     /*************************************** end **************************************************/
 
 

@@ -35,6 +35,8 @@ const GameDot = {
     dot_levelStart: 'levelStart',
     /** 关卡通过 总点 */
     dot_levelPass: 'levelPass',
+    /** 关卡通过 总点 */
+    dot_longLevelPass: 'longLevelPass',
     /** 关卡通过 */
     dot_pass_level_1: '161_pass_level_1',
     dot_pass_level_2: '162_pass_level_2',
@@ -53,6 +55,13 @@ const GameDot = {
     dot_pass_level_all: '205_Stage_pass_all',
     /** 加载成功 总点 */
     dot_loadok_to_all: 'loadok_to_all',
+    /** Match玩法 关卡开始 总点 */
+    dot_JigLevelStart: 'JigLevelStart',
+    dot_JigLevelPass: 'JigLevelPass',
+    dot_JigReStart: 'JigReStart',
+    dot_JigHelpSucc: 'JigHelpSucc',
+    dot_JigReturn: 'JigReturn',
+    dot_JigLevelOver: 'JigLevelOver',
 
     // 添加 返回道具成功（视频完成后）
     dot_addSortReturn_succe: 'Ads_addSortReturn_succ',
@@ -80,6 +89,8 @@ const GameDot = {
     dot_sortPass: 'sortPass',
     dot_sortReStart: 'sortReStart',
     dot_sortStart: 'sortStart',
+
+    dot_matchReStart: 'matchReStart',
     /*************************************** end **************************************************/
 };
 export default GameDot;

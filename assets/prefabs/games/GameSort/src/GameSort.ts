@@ -53,6 +53,7 @@ const {ccclass, property} = cc._decorator;
 export default class GameSort extends cc.Component {
 
     @property(cc.Node) maskTop: cc.Node = null;// 顶部屏蔽
+    @property(cc.Node) matchBtn: cc.Node = null;// 特殊玩法入口按钮
     @property(cc.Node) maskBottom: cc.Node = null;// 底部屏蔽
     @property(cc.Node) nodeMain: cc.Node = null;// 瓶子父节点
     @property(cc.Node) uiTop: cc.Node = null;// 底部节点
@@ -118,7 +119,58 @@ export default class GameSort extends cc.Component {
         this.maskBottom.setContentSize(cc.winSize);
         this.maskBottom.active = false;
 
-        this.enterLevel(false, true);
+        this.enterLevel(false, true, false);
+        // this.eventGameMatch();
+    }
+
+    checkGameMatchTime() {
+        // 统一用秒
+        // console.log("=====checkGameMatchTime======")
+        // DataManager.data.match.lastTime = 0;//上线时候注释掉
+        if (DataManager.data.sortData.level >= 3) {
+            this.matchBtn.active = true;
+            let lastPlayTime = Math.floor(new Date().valueOf() / 1000 - DataManager.data.match.lastTime);
+            let timeJS = this.matchBtn.getChildByName('time').getComponent('GameMatchTime')
+            // 1小时3600秒 lastPlayTime距离上一次玩，已经有多少秒了
+            if (lastPlayTime >= 10 || DataManager.data.match.passLevel < 5) {
+                this.matchBtn.getChildByName('btn').active = true;
+                this.matchBtn.getChildByName('spine').active = true;
+                this.matchBtn.getChildByName('time').active = false;
+                this.matchBtn.getChildByName('hui').active = false;
+                // let spine = this.matchBtn.getChildByName('spine').getComponent(dragonBones.ArmatureDisplay);
+                // spine.playAnimation('yundong', 0);
+                timeJS.timeStop();
+            } else {
+                this.matchBtn.getChildByName('btn').active = false;
+                this.matchBtn.getChildByName('spine').active = false;
+                this.matchBtn.getChildByName('time').active = true;
+                this.matchBtn.getChildByName('hui').active = true;
+                timeJS.timeRun();
+            }
+        } else this.matchBtn.active = false;
+    }
+
+    updateMatchPassTime() {
+        let lastPlayTime = Math.floor(new Date().valueOf() / 1000 - DataManager.data.match.lastTime);
+        if (lastPlayTime >= 7200) {
+            DataManager.data.match.passLevel = 0;
+            DataManager.data.match.lastTime = 0;
+            DataManager.setData(true);
+        }
+    };
+
+    /** 按钮事件 返回 */
+    eventGameMatch() {
+        kit.Audio.playEffect(CConst.sound_path_click);
+        let script = this.node.parent.getComponent('MainScene');
+        cc.tween(this.node).to(0.383, {opacity: 0}).call(function () {
+            script.eventBack_enterGameMatch();
+        }).start()
+        // if (this.nodeMain.active) {
+        //
+        // } else {
+        //     this.nodeMain.active = true;
+        // }
     }
 
     /**
@@ -126,28 +178,32 @@ export default class GameSort extends cc.Component {
      * @param isSpecial 当前是否是特殊关卡
      * @param isCheck 是否需要检测特殊关卡
      */
-    enterLevel(isSpecial, isCheck) {
+    enterLevel(isSpecial, isCheck, isReplay) {
         NativeCall.logEventOne(GameDot.dot_levelStart);
         NativeCall.logEventOne(GameDot.dot_sortStart);
         //游戏初始化
         this.cleanTube();
-        this.initData();
+        this.initData(isReplay);
         this.initUI(isSpecial);
         this.loadLevel(isSpecial, isCheck);
     }
 
-    initData() {
+    initData(isReplay) {
+        let returnCount = this.dataObj.returnCount;
+        if (!isReplay) returnCount = 5;
         this.dataObj = {
             blockTotal: 4,
             stepCount: 0,
             passTime: new Date().getTime(),
-            returnCount: 5,
+            returnCount: returnCount,
             addHeight: 50,
             isMoving: false,
             isFinish: false,
             tubeOld: null,
         };
         this.fanhuidata = [];
+        this.updateMatchPassTime();
+        this.checkGameMatchTime();
     }
 
     initUI(isSpecial) {
@@ -259,11 +315,13 @@ export default class GameSort extends cc.Component {
             // 选择关卡数据
             let levelStart = specialData.level - 1;
             let levelMax = dataLevels.length;
+            console.log("=======levelMax======", levelMax)
             if (levelStart > levelMax - 1) {
                 dataOne = dataLevels[levelMax - 10 + (levelStart - levelMax) % 10];
             } else {
                 dataOne = dataLevels[levelStart];
             }
+            console.log("=======特殊关卡ID======", dataOne.id)
         } else {
             let levelStart = 5;
             let levelDis = 3;
@@ -391,7 +449,7 @@ export default class GameSort extends cc.Component {
                 if (tubeNew.getComponent('SortTube').isPutting) return;
                 // this.dataObj.isMoving = true;
                 this.dataObj.tubeOld = tubeNew;
-                tubeNew.getComponent('SortTube').zIndexBlocks()
+                tubeNew.getComponent('SortTube').zIndexBlocks();
                 let yGoal = -newTubeScript.getTubeHeight() - this.dataObj.addHeight;
                 let time = Common.getMoveTime(newBlockTop.position, cc.v3(0, yGoal), this.baseTime, this.baseDis);
                 if (time > 0.12) time = 0.12 //限定抬起的时间，目前位置1是0.086，位置2是0.114，位置3往后就超过了
@@ -735,7 +793,7 @@ export default class GameSort extends cc.Component {
         let funcReplay = () => {
             NativeCall.logEventOne(GameDot.dot_sortReStart);
             this.playAniShow(false, () => {
-                this.enterLevel(this.isLevelSpecial, false);
+                this.enterLevel(this.isLevelSpecial, false, true);
             });
         };
         // 前30关，有一次免广告重玩的机会,
@@ -957,6 +1015,7 @@ export default class GameSort extends cc.Component {
         block.zIndex = scriptTube.nodeMain.childrenCount;
         block.y = -scriptTube.hStart - scriptTube.hDis * scriptTube.nodeMain.childrenCount;
         block.parent = scriptTube.nodeMain;
+        block.getComponent(SortBlock).indexNumber = scriptTube.nodeMain.childrenCount;
     };
 
     /** 获取 瓶子 */
@@ -1091,4 +1150,9 @@ export default class GameSort extends cc.Component {
     protected onDestroy(): void {
         this.listernerIgnore();
     }
+
+    nextLevel() {
+        DataManager.data.sortData.level += 1
+        this.enterLevel(false, true, false);
+    };
 }

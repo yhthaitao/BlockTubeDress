@@ -1,22 +1,24 @@
-import { kit } from "./../src/kit/kit";
+import {kit} from "./../src/kit/kit";
 import Common from "../src/config/Common";
 import CConst from "../src/config/CConst";
 import GameDot from "../src/config/GameDot";
 import NativeCall from "../src/config/NativeCall";
-import DataManager, { GameState, LangChars } from "../src/config/DataManager";
+import DataManager, {GameState, LangChars} from "../src/config/DataManager";
 import Loading from "../res/prefab/Loading/src/Loading";
 import MainMenu from "../res/prefab/MainMenu/src/MainMenu";
 
 /** 资源路径（层、弹窗预制体） */
 export const ResPath = {
     // 公用
-    preGameWin: { bundle: 'prefabs', path: './components/GameWin/res/prefab/GameWin' },
-    preNewPlayer: { bundle: 'prefabs', path: './components/NewPlayer/res/prefab/NewPlayer' },
+    preGameWin: {bundle: 'prefabs', path: './components/GameWin/res/prefab/GameWin'},
+    preGameOver: {bundle: 'prefabs', path: './components/GameOver/res/prefab/GameOver'},
+    preNewPlayer: {bundle: 'prefabs', path: './components/NewPlayer/res/prefab/NewPlayer'},
     // 游戏
-    preGameSort: { bundle: 'prefabs', path: './games/GameSort/res/prefab/GameSort' },
+    preGameSort: {bundle: 'prefabs', path: './games/GameSort/res/prefab/GameSort'},
+    preGameMatch: {bundle: 'prefabs', path: './games/GameSort/res/prefab/GameMatch'},
 }
 
-const { ccclass, property } = cc._decorator;
+const {ccclass, property} = cc._decorator;
 @ccclass
 export default class MainScene extends cc.Component {
 
@@ -35,6 +37,10 @@ export default class MainScene extends cc.Component {
 
     // 动态加载
     nodeGame: cc.Node = null;
+    // 动态加载
+    nodeMatchGame: cc.Node = null;
+    // 当前玩的游戏S
+    gameType: String = '';
 
     /** 节点-弹窗父节点 */
     nodePopup: cc.Node = null;
@@ -125,8 +131,7 @@ export default class MainScene extends cc.Component {
                     index++;
                     loadBundleRes(index, callback);
                 });
-            }
-            else {
+            } else {
                 callback && callback();
             }
         };
@@ -160,6 +165,8 @@ export default class MainScene extends cc.Component {
         let dataSort = DataManager.data.sortData;
         let isNewPlayer = dataSort.newTip.cur < dataSort.newTip.max;
         script.playAniLeave(this.eventBack_enterGameSort.bind(this));
+        // script.playAniLeave(this.eventBack_enterGameMatch.bind(this));
+
         // if (isNewPlayer) {
         //     Common.log('新手 进入游戏');
         //     script.playAniLeave(this.eventBack_enterGameSort.bind(this));
@@ -177,6 +184,7 @@ export default class MainScene extends cc.Component {
         kit.Event.on(CConst.event_enter_gameSort, this.eventBack_enterGameSort, this);
         kit.Event.on(CConst.event_enter_newPlayer, this.eventBack_enterNewPlayer, this);
         kit.Event.on(CConst.event_enter_gameWin, this.eventBack_enterGameWin, this);
+        kit.Event.on(CConst.event_enter_gameOver, this.eventBack_enterGameOver, this);
         kit.Event.on(CConst.event_tip_noVideo, this.eventBack_noVideoTip, this);
     }
 
@@ -190,14 +198,14 @@ export default class MainScene extends cc.Component {
     eventBack_enterMainMenu() {
         DataManager.setGameState(GameState.stateMainMenu);
         if (DataManager.stateLast == GameState.stateGame) {
-            this.nodeGame.active = false;
+            if (this.nodeGame) this.nodeGame.active = false;
+            if (this.nodeMatchGame) this.nodeMatchGame.active = false;
             // NativeCall.closeBanner();
         }
 
         if (this.NodeMainMenu) {
             this.NodeMainMenu.active = true;
-        }
-        else {
+        } else {
             this.NodeMainMenu = cc.instantiate(this.preMainMenu);
             this.NodeMainMenu.zIndex = CConst.zIndex_menu;
             this.NodeMainMenu.parent = this.node;
@@ -209,19 +217,20 @@ export default class MainScene extends cc.Component {
     /** 事件回调：进入游戏sort */
     eventBack_enterGameSort() {
         DataManager.setGameState(GameState.stateGame);
+        this.gameType = 'GameSort';
         if (DataManager.stateLast == GameState.stateMainMenu) {
             this.NodeMainMenu.active = false;
-        }
-        else if (DataManager.stateLast == GameState.stateLoading) {
+        } else if (DataManager.stateLast == GameState.stateLoading) {
             this.nodeLoading.active = false;
         }
+        if (this.nodeMatchGame) this.nodeMatchGame.active = false;
 
         if (this.nodeGame) {
             this.nodeGame.active = true;
+            this.nodeGame.opacity = 255;
             let script = this.nodeGame.getComponent('GameSort');
             script.enterLevel(false, true);
-        }
-        else {
+        } else {
             let cfg = ResPath.preGameSort;
             DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
                 if (!prefab) {
@@ -232,6 +241,36 @@ export default class MainScene extends cc.Component {
                 this.nodeGame.position = cc.v3();
                 this.nodeGame.zIndex = CConst.zIndex_game;
                 this.nodeGame.parent = this.node;
+            });
+        }
+    }
+
+    /** 事件回调：进入游戏Match */
+    eventBack_enterGameMatch() {
+        DataManager.setGameState(GameState.stateGame);
+        this.gameType = 'GameMatch';
+        if (DataManager.stateLast == GameState.stateMainMenu) {
+            this.NodeMainMenu.active = false;
+        } else if (DataManager.stateLast == GameState.stateLoading) {
+            this.nodeLoading.active = false;
+        }
+
+        if (this.nodeMatchGame) {
+            this.nodeMatchGame.active = true;
+            this.nodeMatchGame.opacity = 255;
+            let script = this.nodeMatchGame.getComponent('GameMatch');
+            script.enterLevel(false, true);
+        } else {
+            let cfg = ResPath.preGameMatch;
+            DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
+                if (!prefab) {
+                    return;
+                }
+                this.nodeMatchGame = cc.instantiate(prefab);
+                this.nodeMatchGame.setContentSize(cc.winSize);
+                this.nodeMatchGame.position = cc.v3();
+                this.nodeMatchGame.zIndex = CConst.zIndex_gameMatch;
+                this.nodeMatchGame.parent = this.node;
             });
         }
     }
@@ -270,6 +309,21 @@ export default class MainScene extends cc.Component {
             let nodeGameWin = cc.instantiate(prefab);
             nodeGameWin.zIndex = CConst.zIndex_gameWin;
             nodeGameWin.parent = this.node;
+            nodeGameWin.getComponent('GameWin').gameType = this.gameType;
+        });
+    };
+
+    /** 事件回调：进入胜利界面 */
+    eventBack_enterGameOver() {
+        let cfg = ResPath.preGameOver;
+        DataManager.loadBundleRes(cfg.bundle, cfg.path, (prefab: cc.Prefab) => {
+            if (!prefab) {
+                return;
+            }
+            let nodeGameOver = cc.instantiate(prefab);
+            nodeGameOver.zIndex = CConst.zIndex_gameOver;
+            nodeGameOver.parent = this.node;
+            nodeGameOver.getComponent('GameOver').gameType = this.gameType;
         });
     };
 

@@ -17,5 +17,7 @@
     "PLAY": "開始",
     "SKIP": "跳過",
     "TipFull": "以满",
-    "Next": "下一关"
+    "Next": "下一关",
+    "Restart": "重新開始",
+    "Exit": "退出"
 }

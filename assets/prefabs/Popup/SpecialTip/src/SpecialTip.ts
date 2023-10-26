@@ -53,7 +53,7 @@ export default class SpecialTip extends PopupBase {
 
     protected onHide(suspended: boolean): void {
         if (this.isSpecial) {
-            kit.Event.emit(CConst.event_enter_nextLevel, true, false);
+            kit.Event.emit(CConst.event_enter_nextLevel, true, false, false);
         }
     }
 
