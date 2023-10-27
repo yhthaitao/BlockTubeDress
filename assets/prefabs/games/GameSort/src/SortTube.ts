@@ -21,13 +21,15 @@ export default class SortTube extends cc.Component {
     zIndexInit: number = 0;
     isMovingTube: boolean = false;//瓶子是否正在移动
     isPutting: boolean = false;//瓶子是否正在放入羽毛球
+    tubeLength: number = 1;
 
     init(blockNum: number) {
+        this.tubeLength = blockNum;
         this.node.stopAllActions();
         let uiBottom = this.nodeUI.getChildByName('bottom');
         let uiMid = this.nodeUI.getChildByName('mid');
         let uiTop = this.nodeUI.getChildByName('top');
-        uiMid.height = this.hStart + this.hDis * (blockNum - 1) + this.hEnd;
+        uiMid.height = this.hStart + this.hDis * (this.tubeLength - 1) + this.hEnd;
         uiTop.y = -uiBottom.height * 0.5 - uiMid.height - uiTop.height * 0.5;
         this.nodeUI.height = uiBottom.height * 0.5 + uiMid.height + uiTop.height + this.hElse;
 
@@ -50,6 +52,27 @@ export default class SortTube extends cc.Component {
     initName(namePre: string, index: number) {
         this.zIndexInit = index;
         this.node.name = namePre + index;
+    };
+
+    addTubeLength(){
+        this.tubeLength += 1;
+        let uiBottom = this.nodeUI.getChildByName('bottom');
+        let uiMid = this.nodeUI.getChildByName('mid');
+        let uiTop = this.nodeUI.getChildByName('top');
+        uiMid.height = this.hStart + this.hDis * (this.tubeLength - 1) + this.hEnd;
+        uiTop.y = -uiBottom.height * 0.5 - uiMid.height - uiTop.height * 0.5;
+        this.nodeUI.height = uiBottom.height * 0.5 + uiMid.height + uiTop.height + this.hElse;
+
+        // 触摸区域
+        let sprite = this.nodeUI.getChildByName('sprite');
+        sprite.width = this.nodeUI.width;
+        sprite.height = this.nodeUI.height;
+        sprite.opacity = 0;
+
+        this.particle.opacity = 0;
+        this.particle.y = -this.nodeUI.height * 0.1;
+        this.dragon.opacity = 0;
+        this.dragon.y = -this.nodeUI.height * 0.45;
     };
 
     resetIndex() {

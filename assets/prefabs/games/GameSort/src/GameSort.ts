@@ -1,10 +1,10 @@
-import {kit} from "../../../../src/kit/kit";
-import {PopupCacheMode} from "../../../../src/kit/manager/popupManager/PopupManager";
+import { kit } from "../../../../src/kit/kit";
+import { PopupCacheMode } from "../../../../src/kit/manager/popupManager/PopupManager";
 import Common from "../../../../src/config/Common";
 import CConst from "../../../../src/config/CConst";
 import GameDot from "../../../../src/config/GameDot";
 import NativeCall from "../../../../src/config/NativeCall";
-import DataManager, {LangChars} from "../../../../src/config/DataManager";
+import DataManager, { LangChars } from "../../../../src/config/DataManager";
 import SortTube from "./SortTube";
 import SortBlock from "./SortBlock";
 import SortTubePos from "./SortTubePos";
@@ -21,12 +21,24 @@ interface SortLevelData {
     number?: number;
 }
 
-/** sort关卡数据 */
+/** tubeObj关卡数据 */
+interface TubeObj {
+    name: string,
+    len: number,
+}
+
+/** BlockObj关卡数据 */
 interface BlockObj {
     /** 小动物类型 */
     number: number;
     /** 是否遮挡 */
     isCover: boolean;
+}
+
+/** 返回数据 */
+interface FanhuiObj {
+    tubes: TubeObj[],
+    blocks: BlockObj[],
 }
 
 interface ObjTube {
@@ -48,7 +60,7 @@ export interface DataMove {
     callback?: Function,
 }
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 @ccclass
 export default class GameSort extends cc.Component {
 
@@ -66,7 +78,7 @@ export default class GameSort extends cc.Component {
     @property(cc.Prefab) preBlock: cc.Prefab = null;// 预制体：动物
 
     resPath = {
-        levelPath: {bundle: 'prefabs', path: './games/GameSort/res/level/SortLevel'},
+        levelPath: { bundle: 'prefabs', path: './games/GameSort/res/level/SortLevel' },
     }
     /** 是否为特殊关卡 */
     isLevelSpecial: boolean = false;
@@ -86,6 +98,7 @@ export default class GameSort extends cc.Component {
      * @returns
      */
     dataObj = {
+        tubeTotal: 0,
         blockTotal: 0,
         stepCount: 0,
         passTime: 0,
@@ -96,7 +109,7 @@ export default class GameSort extends cc.Component {
         tubeOld: null,
     };
     levelData: SortLevelData[] = [];
-    fanhuidata: { tubeNum: number, blocksObj: BlockObj[] }[] = [];
+    fanhuidata: FanhuiObj[] = [];
 
     baseTime = 1;// 基础时间 用于计算移动时间
     baseDis = 2000;// 基础距离 用于计算移动时间
@@ -163,7 +176,7 @@ export default class GameSort extends cc.Component {
     eventGameMatch() {
         kit.Audio.playEffect(CConst.sound_path_click);
         let script = this.node.parent.getComponent('MainScene');
-        cc.tween(this.node).to(0.383, {opacity: 0}).call(function () {
+        cc.tween(this.node).to(0.383, { opacity: 0 }).call(function () {
             script.eventBack_enterGameMatch();
         }).start()
         // if (this.nodeMain.active) {
@@ -193,6 +206,7 @@ export default class GameSort extends cc.Component {
         if (!isReplay) returnCount = 5;
         returnCount = 5;//17版本有(数据略好，保留)
         this.dataObj = {
+            tubeTotal: 0,
             blockTotal: 4,
             stepCount: 0,
             passTime: new Date().getTime(),
@@ -337,17 +351,17 @@ export default class GameSort extends cc.Component {
             dataOne = dataLevels[(sortData.level - 1) % 2000];
         }
 
-        let tubeNum = dataOne.tube;// 管子个数
-        let blockTypes = dataOne.balls;// 小球种类
+        this.dataObj.tubeTotal = dataOne.tube;
         this.dataObj.blockTotal = dataOne.number || 4;
+        let blockTypes = dataOne.balls;// 小球种类
         //摆放关卡 也可以 swich
-        for (let i = 0; i < tubeNum; i++) {
-            let nodeTube = this.addTube(i);
+        for (let i = 0; i < this.dataObj.tubeTotal; i++) {
+            let nodeTube = this.addTube(this.dataObj.blockTotal);
             //添加球
             for (let j = 0; j < this.dataObj.blockTotal; j++) {
                 let id = i * this.dataObj.blockTotal + j;
                 if (blockTypes[id] > 0) {
-                    this.addBlock(nodeTube, {number: blockTypes[id], isCover: false});
+                    this.addBlock(nodeTube, { number: blockTypes[id], isCover: false });
                 }
             }
             // 特殊关卡 保留顶部 其他位置的覆盖
@@ -356,7 +370,7 @@ export default class GameSort extends cc.Component {
                 scriptTube.initCover();
             }
         }
-        this.refreshTubePos(tubeNum);
+        this.refreshTubePos(this.dataObj.tubeTotal);
         this.saveData();//记录返回
         NativeCall.logEventOne(GameDot.dot_loadok_to_all);
         this.playAniShow(true, () => {
@@ -406,7 +420,7 @@ export default class GameSort extends cc.Component {
         if (!isCheckSpecial) {
             return;
         }
-        kit.Popup.show(CConst.popup_path_special_tip, {}, {mode: PopupCacheMode.Frequent});
+        kit.Popup.show(CConst.popup_path_special_tip, {}, { mode: PopupCacheMode.Frequent });
     }
 
     /**
@@ -423,7 +437,7 @@ export default class GameSort extends cc.Component {
             return;
         }
         if (_data.sortData.level == 6 || _data.sortData.level == 26) {
-            kit.Popup.show(CConst.popup_path_user_evaluate, {}, {mode: PopupCacheMode.Frequent});
+            kit.Popup.show(CConst.popup_path_user_evaluate, {}, { mode: PopupCacheMode.Frequent });
         }
     }
 
@@ -442,6 +456,7 @@ export default class GameSort extends cc.Component {
         this.dataObj.stepCount += 1;
         let newBlockTop = newTubeScript.getBlockTop();
         let newBlockNum = newTubeScript.nodeMain.childrenCount;
+        let newBlockTotal = newTubeScript.tubeLength;
         // 瓶子抬起
         let funcMoveUp = () => {
             if (newBlockNum > 0) {
@@ -468,7 +483,7 @@ export default class GameSort extends cc.Component {
                             tube.getComponent(SortTube).resetIndex();
                         }
                     });
-                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
                     // tubeNew.getComponent('SortTube').isMovingTube = false
                     // this.dataObj.isMoving = false;
                     // this.dataObj.tubeOld = tubeNew;
@@ -493,7 +508,7 @@ export default class GameSort extends cc.Component {
                 cc.tween(oldBlockTop).call(() => {
                     oldTubeScript.tubeSelect(false);
                     oldBlockTop.getComponent("SortBlock").playAni();
-                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
                     oldTubeScript.isMovingTube = false;//旧瓶子停止移动
                     oldTubeScript.isPutting = false;
                 }).start();
@@ -507,7 +522,7 @@ export default class GameSort extends cc.Component {
                 let arroldBlocks = Common.getArrByPosY(oldTubeScript.nodeMain);
                 for (let i = oldBlockNum - 2; i >= 0; i--) {
                     let blockCount = newBlockNum + arrOldBlockSame.length;
-                    if (blockCount >= this.dataObj.blockTotal) break;
+                    if (blockCount >= newTubeScript.tubeLength) break;
                     let oldBlockElse = arroldBlocks[i];
                     let scriptBlockElse = oldBlockElse.getComponent(SortBlock);
                     // 没被覆盖 并且 种类一样
@@ -535,7 +550,7 @@ export default class GameSort extends cc.Component {
                     if (isFull) {
                         newTubeScript.tubeFull();
                     }
-                }).to(time, {y: yGoal}, cc.easeSineInOut()).call(() => {
+                }).to(time, { y: yGoal }, cc.easeSineInOut()).call(() => {
                     // this.dataObj.isMoving = false;
                     this.dataObj.tubeOld = null;
                     oldTubeScript.isPutting = false;
@@ -582,7 +597,7 @@ export default class GameSort extends cc.Component {
             let isCanMove = false;
             if (newBlockNum == 0) {
                 isCanMove = true;
-            } else if (newBlockNum == this.dataObj.blockTotal) {
+            } else if (newBlockNum == newBlockTotal) {
                 isCanMove = false;
             } else {
                 isCanMove = newBlockTop.getComponent(SortBlock).number == oldBlockTop.getComponent(SortBlock).number;
@@ -782,7 +797,7 @@ export default class GameSort extends cc.Component {
     eventBtnBack() {
         kit.Audio.playEffect(CConst.sound_path_click);
         if (this.isLevelSpecial) {
-            kit.Popup.show(CConst.popup_path_special_quit, {}, {mode: PopupCacheMode.Frequent});
+            kit.Popup.show(CConst.popup_path_special_quit, {}, { mode: PopupCacheMode.Frequent });
         } else {
             kit.Event.emit(CConst.event_enter_mainMenu);
         }
@@ -842,17 +857,15 @@ export default class GameSort extends cc.Component {
             // 重置存储的数据 已经去掉遮罩的小动物，保持去掉的状态；
             let dataLast = this.fanhuidata[this.fanhuidata.length - 1];
             let dataCur = this.fanhuidata[this.fanhuidata.length - 2];
-            dataCur.blocksObj.forEach((blockObj: BlockObj, index: number) => {
-                let lastBlockObj = dataLast.blocksObj[index];
+            dataCur.blocks.forEach((blockObj: BlockObj, index: number) => {
+                let lastBlockObj = dataLast.blocks[index];
                 if (blockObj.number == lastBlockObj.number && blockObj.isCover != lastBlockObj.isCover) {
                     blockObj.isCover = lastBlockObj.isCover;
                 }
             });
             this.fanhuidata.pop();// 记录的数据变更
 
-            let tubeNum = dataCur.tubeNum;
-            let blocksObj = dataCur.blocksObj;
-            this.refreshGame(true, tubeNum, blocksObj);
+            this.refreshGame(dataCur);
             this.playAniNotMove();
         } else {
             let funcA = () => {
@@ -892,7 +905,7 @@ export default class GameSort extends cc.Component {
         if (DataManager.data.propAddTupe > 0) {
             DataManager.data.propAddTupe--;
             this.updateBtnAddTube();
-            this.addTube(tubeNum);
+            this.addTube(1);
             this.playAniNotMove();
             this.saveData();
 
@@ -904,7 +917,7 @@ export default class GameSort extends cc.Component {
         } else {
             let funcA = () => {
                 NativeCall.logEventOne(GameDot.dot_addTube_succ);
-                this.addTube(tubeNum);
+                this.addTube(1);
                 this.playAniNotMove();
                 this.saveData();
 
@@ -938,7 +951,7 @@ export default class GameSort extends cc.Component {
         this.nodeMain.opacity = opaStart;
         cc.tween(this.nodeMain).call(() => {
             this.maskBottom.active = true;
-        }).to(0.383, {opacity: opaFinish}, cc.easeSineInOut()).call(() => {
+        }).to(0.383, { opacity: opaFinish }, cc.easeSineInOut()).call(() => {
             this.maskBottom.active = false;
             callback && callback();
         }).start();
@@ -947,35 +960,35 @@ export default class GameSort extends cc.Component {
     /**
      * 刷新游戏内容
      * @param isAdd 是否添加
-     * @param tubeNum 瓶子数量
-     * @param blocksObj 动物种类数组 空数组时，不添加动物
+     * @param fanhuiObj
      */
-    refreshGame(isAddTube: boolean, tubeNum: number, blocksObj: BlockObj[] = []) {
+    refreshGame(fanhuiObj: FanhuiObj) {
+        let tubes = fanhuiObj.tubes;
+        let blocks = fanhuiObj.blocks;
         //开始排列
-        for (let i = 0; i < tubeNum; i++) {
-            let nodeTube: cc.Node = null;
-            if (isAddTube) {
-                nodeTube = this.addTube(i);
-            } else {
-                nodeTube = this.nodeMain.children[i];
-            }
-            let blocksNum = blocksObj.length;
+        let idBlock = -1;
+        for (let i = 0, lenA = tubes.length; i < lenA; i++) {
+            let tubeObj: TubeObj = tubes[i];
+            let nodeTube: cc.Node = this.addTube(tubeObj.len);
+            let blocksNum = blocks.length;
             if (blocksNum > 0) {
                 //添加球
-                for (let j = 0; j < this.dataObj.blockTotal; j++) {
-                    let id = i * this.dataObj.blockTotal + j;
-                    let blockObj = blocksObj[id];
+                for (let j = 0; j < tubeObj.len; j++) {
+                    idBlock++;
+                    let blockObj = blocks[idBlock];
                     if (blockObj.number > 0) {
                         this.addBlock(nodeTube, blockObj);
                     }
+                    console.log('name: ', nodeTube.name, '; j: ', j, '; idBlock: ', idBlock, '; number: ', blockObj.number);
                 }
             }
         }
-        this.refreshTubePos(tubeNum);
+        this.refreshTubePos(tubes.length);
     }
 
     /** 瓶子内布置 */
     refreshTubePos(tubeNum: number) {
+        console.log('refreshTubePos tubeNum: ', tubeNum);
         //获取位置
         let obj: ObjTube = SortTubePos['tube' + this.dataObj.blockTotal][tubeNum];
         //开始排列
@@ -1001,12 +1014,41 @@ export default class GameSort extends cc.Component {
     }
 
     /** 添加新的瓶子 */
-    addTube(tubeId: number) {
-        let nodeTube = this.getTube(this.dataObj.blockTotal);
-        let script = nodeTube.getComponent(SortTube);
-        script.initName(this.tubeName, tubeId);
-        nodeTube.parent = this.nodeMain;
-        return nodeTube;
+    addTube(tubeLength: number) {
+        // 原瓶子
+        let tubeHave = this.nodeMain.childrenCount;
+        if (tubeHave < this.dataObj.tubeTotal) {
+            let nodeTube = this.getTube(this.dataObj.blockTotal);
+            let script = nodeTube.getComponent(SortTube);
+            script.initName(this.tubeName, tubeHave);
+            nodeTube.parent = this.nodeMain;
+            return nodeTube;
+        }
+        // 新瓶子 特殊
+        if (this.isLevelSpecial) {
+            let nodeTube = this.getTube(this.dataObj.blockTotal);
+            let script = nodeTube.getComponent(SortTube);
+            script.initName(this.tubeName, tubeHave);
+            nodeTube.parent = this.nodeMain;
+            return nodeTube;
+        }
+        // 新瓶子 普通
+        let tubeName = this.tubeName + (this.nodeMain.childrenCount - 1);
+        let nodeTube = this.nodeMain.getChildByName(tubeName);
+        let scriptTube = nodeTube.getComponent(SortTube);
+        if (scriptTube.tubeLength < this.dataObj.blockTotal) {
+            // 衣架长度+1
+            scriptTube.addTubeLength();
+            return nodeTube;
+        }
+        else {
+            // 衣架长度初始为 tubeLength
+            let tube = this.getTube(tubeLength);
+            let script = tube.getComponent(SortTube);
+            script.initName(this.tubeName, tubeHave);
+            tube.parent = this.nodeMain;
+            return tube;
+        }
     };
 
     /** 添加动物 */
@@ -1042,25 +1084,31 @@ export default class GameSort extends cc.Component {
         let tubeNum = this.nodeMain.childrenCount;
         if (tubeNum > 0) {
             //循环存储每个管子
+            let tubes: TubeObj[] = [];
+            let blocks: BlockObj[] = [];
             let arrTube = Common.getArrByName(this.nodeMain, this.tubeName);
-            let blocksObj: BlockObj[] = [];
             for (let i = 0; i < tubeNum; i++) {
                 let tube = arrTube[i];
                 let scriptTube = tube.getComponent(SortTube);
-                let blocks = Common.getArrByPosY(scriptTube.nodeMain);
-                for (let j = 0; j < this.dataObj.blockTotal; j++) {
-                    let block = blocks[j];
+                tubes.push({ name: tube.name, len: scriptTube.tubeLength });
+
+                let arrBlock = Common.getArrByPosY(scriptTube.nodeMain);
+                for (let j = 0; j < scriptTube.tubeLength; j++) {
+                    let block = arrBlock[j];
                     let blockObj: BlockObj;
                     if (block) {
                         let scriptBlock = block.getComponent(SortBlock);
-                        blockObj = {number: scriptBlock.number, isCover: scriptBlock.isCover};
+                        blockObj = { number: scriptBlock.number, isCover: scriptBlock.isCover };
                     } else {
-                        blockObj = {number: 0, isCover: false};
+                        blockObj = { number: 0, isCover: false };
                     }
-                    blocksObj.push(blockObj);
+                    blocks.push(blockObj);
                 }
             }
-            this.fanhuidata.push({tubeNum: tubeNum, blocksObj: blocksObj});
+
+            let obj: FanhuiObj = { tubes: tubes, blocks: blocks };
+            this.fanhuidata.push(obj);
+            console.log('fanhuiData: ', this.fanhuidata);
         }
     }
 
