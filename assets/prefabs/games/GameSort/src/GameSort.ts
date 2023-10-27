@@ -191,6 +191,7 @@ export default class GameSort extends cc.Component {
     initData(isReplay) {
         let returnCount = this.dataObj.returnCount;
         if (!isReplay) returnCount = 5;
+        returnCount = 5;//17版本有(数据略好，保留)
         this.dataObj = {
             blockTotal: 4,
             stepCount: 0,
@@ -1111,30 +1112,32 @@ export default class GameSort extends cc.Component {
             DataManager.setData(true);
             kit.Event.emit(CConst.event_enter_gameWin);
         };
-        let isPlayAds = DataManager.checkIsPlayAdvert(levelSort);
-        if (isPlayAds) {
-            // 打点 插屏广告请求（过关）
-            NativeCall.logEventThree(GameDot.dot_adReq, "inter_nextlevel", "Interstital");
-            let funcA = () => {
-                // 打点 插屏播放完成（游戏结束）
-                NativeCall.logEventTwo(GameDot.dot_ads_advert_succe_win, String(levelSort));
-                funcNext();
-
-                // 广告计时
-                DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001);
-                DataManager.data.adRecord.level = levelSort;
-                DataManager.setData();
-            };
-            let funcB = () => {
-                funcNext();
-            };
-            let isReady = DataManager.playAdvert(funcA, funcB);
-            if (!isReady) {
-                funcB();
-            }
-        } else {
-            funcNext();
-        }
+        funcNext();
+        // let isPlayAds = DataManager.checkIsPlayAdvert(levelSort);
+        // if (isPlayAds) {
+        // if (DataManager.data.sortData.level > 5) {
+        //     // 打点 插屏广告请求（过关）
+        //     NativeCall.logEventThrGameSortee(GameDot.dot_adReq, "inter_nextlevel", "Interstital");
+        //     let funcA = () => {
+        //         // 打点 插屏播放完成（游戏结束）
+        //         NativeCall.logEventTwo(GameDot.dot_ads_advert_succe_win, String(levelSort));
+        //         funcNext();
+        //
+        //         // 广告计时
+        //         DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001);
+        //         DataManager.data.adRecord.level = levelSort;
+        //         DataManager.setData();
+        //     };
+        //     let funcB = () => {
+        //         funcNext();
+        //     };
+        //     let isReady = DataManager.playAdvert(funcA, funcB);
+        //     if (!isReady) {
+        //         funcB();
+        //     }
+        // } else {
+        //     funcNext();
+        // }
     }
 
     /** 监听-注册 */

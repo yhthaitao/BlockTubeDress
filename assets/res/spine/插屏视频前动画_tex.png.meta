@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "78f4e3ed-4b27-46d1-a19c-5d4e9fbe0e79",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "插屏视频前动画_tex": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "b4140542-df57-44fd-b22f-378bd4e71fdc",
+      "importer": "sprite-frame",
       "rawTextureUuid": "78f4e3ed-4b27-46d1-a19c-5d4e9fbe0e79",
       "trimType": "auto",
       "trimThreshold": 1,

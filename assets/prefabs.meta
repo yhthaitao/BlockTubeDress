@@ -1,6 +1,7 @@
 {
-  "ver": "1.1.2",
+  "ver": "1.1.3",
   "uuid": "83f8e0db-f947-4a10-9567-a310768a77c6",
+  "importer": "folder",
   "isBundle": true,
   "bundleName": "prefabs",
   "priority": 1,

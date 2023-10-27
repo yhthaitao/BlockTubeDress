@@ -52,12 +52,32 @@ export default class MainScene extends cc.Component {
 
     protected onLoad(): void {
         cc.macro.ENABLE_MULTI_TOUCH = false;//关闭多点触控
+        this.windowsFit();
         this.listernerRegist();
     }
 
     protected start(): void {
         this.init();
     }
+
+    windowsFit() {
+        let isNotFit = cc.winSize.height / cc.winSize.width <= 1.78;
+        let canvas = this.node.getComponent(cc.Canvas);
+        console.log("canvas size:", cc.view.getCanvasSize());
+        //视图中窗口可见区域尺寸
+        console.log("visible Size:", cc.view.getVisibleSize());
+        //设计分辨率
+        console.log("DesignResolutionSize Size:", cc.view.getDesignResolutionSize());
+        //屏幕尺寸
+        console.log("frame size", cc.view.getFrameSize());
+        if (isNotFit) {
+            canvas.fitHeight = true;
+            canvas.fitWidth = true;
+        }
+        console.log("height pre", cc.winSize.height / cc.view.getFrameSize().height);
+        this.node.getChildByName('bg').width = cc.view.getFrameSize().width * cc.winSize.height / cc.view.getFrameSize().height
+        // this.node.getChildByName('bg').height = cc.view.getFrameSize().height
+    };
 
     init() {
         // 应用内评价（启动游戏时调用）

@@ -2,6 +2,8 @@ import {kit} from "../../../../src/kit/kit";
 import CConst from "../../../../src/config/CConst";
 import Common from "../../../../src/config/Common";
 import DataManager, {LangChars} from "../../../../src/config/DataManager";
+import NativeCall from "../../../../src/config/NativeCall";
+import GameDot from "../../../../src/config/GameDot";
 
 const {ccclass, property} = cc._decorator;
 @ccclass
@@ -110,13 +112,40 @@ export default class GameWin extends cc.Component {
     }
 
     eventBtnNext() {
-        if (this.nodeNext.opacity != 255) return;
+        if (this.nodeNext.opacity <= 150) return;
         if (this.isLock) {
             return;
         }
         this.isLock = true;
         kit.Audio.playEffect(CConst.sound_path_click);
-        this.playAniLeave();
+        let self = this;
+        let levelSort = DataManager.data.sortData.level
+        if (this.gameType == 'GameMatch') {
+            // console.log("======levelSort=====", levelSort, DataManager.data.match.level, (levelSort + DataManager.data.match.level - 2))
+            levelSort = levelSort + DataManager.data.match.level - 2;
+        }
+        if (levelSort > 5) {
+            // 打点 插屏广告请求（过关）
+            NativeCall.logEventThree(GameDot.dot_adReq, "inter_nextlevel", "Interstital");
+            let funcA = () => {
+                // 打点 插屏播放完成（游戏结束）
+                NativeCall.logEventTwo(GameDot.dot_ads_advert_succe_win, String(levelSort));
+                // 广告计时
+                DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001);
+                DataManager.data.adRecord.level = levelSort;
+                DataManager.setData();
+                self.playAniLeave();
+            };
+            let funcB = () => {
+                self.playAniLeave();
+            };
+            let isReady = DataManager.playAdvert(funcA, funcB);
+            if (!isReady) {
+                funcB();
+            }
+        }else {
+            this.playAniLeave();
+        }
     }
 
     /** 播放动画 离开结算界面 */
@@ -134,6 +163,7 @@ export default class GameWin extends cc.Component {
                 }
             }
         };
+        // funcAfter()
         cc.tween(this.nodeNext).to(0.5, {opacity: 0}).start();
         // cc.tween(this.nodeTitle).parallel(
         //     cc.tween().to(0.5, { y: cc.winSize.height * 0.5 }, cc.easeSineInOut()),

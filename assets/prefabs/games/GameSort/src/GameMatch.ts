@@ -744,30 +744,30 @@ export default class GameSort extends cc.Component {
             DataManager.setData(true);
             kit.Event.emit(CConst.event_enter_gameWin);
         };
-        let isPlayAds = DataManager.checkIsPlayAdvert(levelSort);
-        if (isPlayAds) {
-            // 打点 插屏广告请求（过关）
-            NativeCall.logEventThree(GameDot.dot_adReq, "inter_nextlevel", "Interstital");
-            let funcA = () => {
-                // 打点 插屏播放完成（游戏结束）
-                NativeCall.logEventTwo(GameDot.dot_ads_advert_succe_win, String(levelSort));
-                funcNext();
-
-                // 广告计时
-                DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001);
-                DataManager.data.adRecord.level = levelSort;
-                DataManager.setData();
-            };
-            let funcB = () => {
-                funcNext();
-            };
-            let isReady = DataManager.playAdvert(funcA, funcB);
-            if (!isReady) {
-                funcB();
-            }
-        } else {
-            funcNext();
-        }
+        funcNext();
+        // let isPlayAds = DataManager.checkIsPlayAdvert(levelSort);
+        // if (isPlayAds) {
+        //     // 打点 插屏广告请求（过关）
+        //     NativeCall.logEventThree(GameDot.dot_adReq, "inter_nextlevel", "Interstital");
+        //     let funcA = () => {
+        //         // 打点 插屏播放完成（游戏结束）
+        //         NativeCall.logEventTwo(GameDot.dot_ads_advert_succe_win, String(levelSort));
+        //         funcNext();
+        //         // 广告计时
+        //         DataManager.data.adRecord.time = Math.floor(new Date().getTime() * 0.001);
+        //         DataManager.data.adRecord.level = levelSort;
+        //         DataManager.setData();
+        //     };
+        //     let funcB = () => {
+        //         funcNext();
+        //     };
+        //     let isReady = DataManager.playAdvert(funcA, funcB);
+        //     if (!isReady) {
+        //         funcB();
+        //     }
+        // } else {
+        //     funcNext();
+        // }
     }
 
     /**

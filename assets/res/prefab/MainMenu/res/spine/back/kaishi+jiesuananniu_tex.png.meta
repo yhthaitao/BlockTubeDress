@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "1b2763ca-fe95-4458-b62d-48d8e7795792",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "kaishi+jiesuananniu_tex": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "ee00197a-adb3-4f22-a21a-7fa07a51c02b",
+      "importer": "sprite-frame",
       "rawTextureUuid": "1b2763ca-fe95-4458-b62d-48d8e7795792",
       "trimType": "auto",
       "trimThreshold": 1,

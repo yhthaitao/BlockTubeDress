@@ -1,6 +1,7 @@
 {
-  "ver": "2.3.5",
+  "ver": "2.3.7",
   "uuid": "f124ff74-8030-48e6-b703-cb5fc36f016b",
+  "importer": "texture",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
@@ -12,8 +13,9 @@
   "platformSettings": {},
   "subMetas": {
     "结算恭喜底": {
-      "ver": "1.0.4",
+      "ver": "1.0.6",
       "uuid": "82b83487-efb8-4a3f-bc64-f276e356ebb9",
+      "importer": "sprite-frame",
       "rawTextureUuid": "f124ff74-8030-48e6-b703-cb5fc36f016b",
       "trimType": "auto",
       "trimThreshold": 1,

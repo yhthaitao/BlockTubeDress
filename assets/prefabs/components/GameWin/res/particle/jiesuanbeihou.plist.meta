@@ -1,5 +1,6 @@
 {
-  "ver": "2.0.1",
+  "ver": "2.0.3",
   "uuid": "c54c6d19-30fe-4cc5-b6ae-09e0f62e97ae",
+  "importer": "particle",
   "subMetas": {}
 }
